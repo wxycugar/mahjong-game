@@ -27,7 +27,7 @@ export default function HandTiles({
   onDraw,
 }: HandTilesProps) {
   return (
-    <div className="relative bottom-0 left-0 w-full pb-2 md:pb-6 px-0 md:px-4">
+    <div className="relative bottom-0 left-0 w-full shrink-0 pb-2 md:pb-6 px-0 md:px-4">
       {/* 手机端：整个手牌区悬浮在底部，与 melds 一起 */}
       <div className="flex items-end justify-center w-full gap-0 md:gap-6">
         {/* 左侧：副露独立区 */}
