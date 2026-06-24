@@ -52,7 +52,7 @@ export default function HandTiles({
       </div>
 
       {/* 中间容器：网格等比缩放系统 */}
-      <div className="flex items-end bg-black/80 p-2 md:p-8 rounded-2xl md:rounded-[5rem] border border-white/10 backdrop-blur-3xl shadow-[0_60px_120px_-20px_rgba(0,0,0,1)] max-w-full flex-1 overflow-x-auto snap-x snap-mandatory scrollbar-none">
+      <div className="flex items-end bg-black/80 p-2 md:p-8 rounded-2xl md:rounded-[5rem] border border-white/10 backdrop-blur-3xl shadow-[0_60px_120px_-20px_rgba(0,0,0,1)] max-w-full md:max-w-none flex-1 md:flex-initial overflow-x-auto md:overflow-visible snap-x snap-mandatory scrollbar-none">
         <div className="flex gap-0.5 md:gap-1 items-end overflow-visible flex-nowrap mx-auto">
           {/* 13 张主手牌物理阵列：引入物理包装感应底座 */}
           {playerHand.map((tile, i) => {
@@ -61,7 +61,7 @@ export default function HandTiles({
             return (
               <div
                 key={`pedestal-${tile.id}`}
-                className={`relative snap-start shrink-0 ${isActionable ? 'min-w-[clamp(22px,6vw,36px)] md:min-w-[clamp(28px,2.8vw,56px)]' : 'min-w-[clamp(18px,5vw,30px)] md:min-w-[clamp(28px,2.8vw,56px)]'} h-16 md:h-28 group`}
+                className={`relative snap-start md:snap-none shrink-0 ${isActionable ? 'min-w-[clamp(22px,6vw,36px)] md:min-w-[clamp(28px,2.8vw,56px)]' : 'min-w-[clamp(18px,5vw,30px)] md:min-w-[clamp(28px,2.8vw,56px)]'} h-16 md:h-28 group`}
               >
                 {waitList && (
                   <div className="absolute -top-10 md:-top-16 left-1/2 -translate-x-1/2 bg-blue-600 text-[6px] md:text-[10px] px-1.5 md:px-4 py-0.5 md:py-1.5 rounded md:rounded-xl shadow-2xl animate-pulse whitespace-nowrap z-[310] border border-white/30 font-black leading-tight">
@@ -107,7 +107,7 @@ export default function HandTiles({
           {/* 精准间距 */}
           <div className="w-2 md:w-10 shrink-0" />
 
-          <div className="w-[clamp(24px,6.5vw,38px)] md:w-[clamp(32px,2.9vw,62px)] h-16 md:h-28 shrink-0 relative group snap-start">
+          <div className="w-[clamp(24px,6.5vw,38px)] md:w-[clamp(32px,2.9vw,62px)] h-16 md:h-28 shrink-0 relative group snap-start md:snap-none">
             {drawnTile ? (
               <div className="w-full h-full relative">
                 {hints[drawnTile.id] && (

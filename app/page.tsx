@@ -281,7 +281,7 @@ export default function MahjongGame() {
   const handSize = playerHand.length + (drawnTile ? 1 : 0);
 
   return (
-    <main className="min-h-[100dvh] bg-[#040608] text-white flex flex-col items-center py-2 md:py-4 px-2 font-sans select-none overflow-hidden relative w-full max-w-[100vw] overflow-x-hidden">
+    <main className="min-h-[100dvh] md:min-h-screen bg-[#040608] text-white flex flex-col items-center py-2 md:py-4 px-2 font-sans select-none overflow-hidden relative w-full max-w-[100vw] overflow-x-hidden">
       <GameHeader
         statusLog={statusLog}
         deckSize={deckSize}
