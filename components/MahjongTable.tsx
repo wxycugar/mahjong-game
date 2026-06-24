@@ -47,7 +47,7 @@ export default function MahjongTable({
   onDraw,
 }: MahjongTableProps) {
   return (
-    <div className="relative w-full max-w-6xl flex-grow bg-gradient-to-br from-[#1b4332] via-[#081c15] to-[#010c08] rounded-2xl md:rounded-[6rem] border-[6px] md:border-[22px] border-[#0a0f0d] shadow-[0_80px_150px_-20px_rgba(0,0,0,1)] flex flex-col p-3 md:p-12 overflow-hidden border-double relative">
+    <div className="relative w-full max-w-6xl flex-grow bg-gradient-to-br from-[#1b4332] via-[#081c15] to-[#010c08] rounded-2xl md:rounded-[6rem] border-[6px] md:border-[22px] border-[#0a0f0d] shadow-[0_80px_150px_-20px_rgba(0,0,0,1)] flex flex-col p-3 md:p-12 pb-[76px] md:pb-12 overflow-hidden border-double relative">
       <OpponentHands aiHands={aiHands} />
       <DiscardPile discards={discards} />
 

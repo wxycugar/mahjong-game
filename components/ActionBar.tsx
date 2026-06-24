@@ -14,7 +14,7 @@ interface ActionBarProps {
 
 export default function ActionBar({ canRon, canPon, canTsumo, onRon, onPon, onTsumo }: ActionBarProps) {
   return (
-    <div className="min-h-16 md:h-24 flex flex-wrap justify-center items-center gap-2 md:gap-10 mb-2 md:mb-4 z-[300] relative px-2 md:px-0">
+    <div className="min-h-16 md:h-24 flex flex-wrap justify-center items-center gap-2 md:gap-10 mb-20 md:mb-4 z-[300] relative px-2 md:px-0">
       {canRon && (
         <button
           onClick={onRon}
