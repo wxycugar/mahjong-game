@@ -281,7 +281,7 @@ export default function MahjongGame() {
   const handSize = playerHand.length + (drawnTile ? 1 : 0);
 
   return (
-    <main className="w-full min-h-screen flex flex-col justify-start bg-[#040608] text-white font-sans select-none relative">
+    <main className="w-full min-h-screen flex flex-col justify-start items-center bg-[#040608] text-white font-sans select-none relative">
       <GameHeader
         statusLog={statusLog}
         deckSize={deckSize}

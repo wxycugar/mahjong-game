@@ -54,8 +54,8 @@ export default function HandTiles({
         </div>
 
         {/* 中间容器：手机端大牌横向滑动，桌面端自然平铺 */}
-        <div className="flex items-end bg-black/60 md:bg-black/80 p-2 md:p-8 rounded-xl md:rounded-[5rem] border border-white/10 backdrop-blur-3xl shadow-[0_60px_120px_-20px_rgba(0,0,0,1)] max-w-full md:max-w-none flex-1 md:flex-initial overflow-x-auto md:overflow-visible snap-x snap-mandatory scrollbar-none">
-          <div className="flex gap-0.5 md:gap-1 items-end overflow-visible flex-nowrap mx-auto px-0 md:px-0">
+        <div className="flex items-center bg-black/60 md:bg-black/80 p-2 md:p-8 rounded-xl md:rounded-[5rem] border border-white/10 backdrop-blur-3xl shadow-[0_60px_120px_-20px_rgba(0,0,0,1)] max-w-full md:max-w-none flex-1 md:flex-initial">
+          <div className="flex flex-wrap justify-center content-center gap-1 mx-auto px-0 md:px-0">
             {/* 13 张主手牌物理阵列 */}
             {playerHand.map((tile, i) => {
               const waitList = hints[tile.id];
@@ -63,7 +63,7 @@ export default function HandTiles({
               return (
                 <div
                   key={`pedestal-${tile.id}`}
-                  className={`relative snap-start md:snap-none flex-shrink-0 w-[46px] md:w-auto ${isActionable ? 'md:min-w-[clamp(28px,2.8vw,56px)]' : 'md:min-w-[clamp(28px,2.8vw,56px)]'} h-[64px] md:h-28 group`}
+                  className={`relative flex-shrink-0 w-[46px] md:w-auto ${isActionable ? 'md:min-w-[clamp(28px,2.8vw,56px)]' : 'md:min-w-[clamp(28px,2.8vw,56px)]'} h-[64px] md:h-28 group`}
                 >
                   {waitList && (
                     <div className="absolute -top-10 md:-top-16 left-1/2 -translate-x-1/2 bg-blue-600 text-[7px] md:text-[10px] px-1 md:px-4 py-0.5 md:py-1.5 rounded md:rounded-xl shadow-2xl animate-pulse whitespace-nowrap z-[310] border border-white/30 font-black leading-tight">
@@ -110,7 +110,7 @@ export default function HandTiles({
             <div className="w-3 md:w-10 shrink-0" />
 
             {/* 摸到的牌 / Draw 按钮 */}
-            <div className="flex-shrink-0 w-[46px] md:w-[clamp(32px,2.9vw,62px)] h-[64px] md:h-28 relative group snap-start md:snap-none">
+            <div className="flex-shrink-0 w-[46px] md:w-[clamp(32px,2.9vw,62px)] h-[64px] md:h-28 relative group">
               {drawnTile ? (
                 <div className="w-full h-full relative">
                   {hints[drawnTile.id] && (
