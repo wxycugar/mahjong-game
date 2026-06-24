@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Tile } from '@/lib/mahjongTypes';
+import FullscreenToggle from './FullscreenToggle';
 
 interface GameHeaderProps {
   statusLog: string;
@@ -14,6 +15,7 @@ interface GameHeaderProps {
 export default function GameHeader({ statusLog, deckSize, handSize, doraIndicator, onNewGame }: GameHeaderProps) {
   return (
     <div className="w-full max-w-6xl flex flex-col md:flex-row justify-between items-center md:items-end mb-2 md:mb-4 px-3 md:px-8 py-3 md:p-6 bg-slate-900/90 rounded-2xl md:rounded-[2.5rem] border border-white/10 shadow-[0_30px_70px_rgba(0,0,0,1)] backdrop-blur-2xl relative z-[100] gap-2 md:gap-0 landscape:flex-row landscape:h-14 landscape:py-1 landscape:px-2 landscape:gap-1 landscape:scale-75 landscape:origin-top">
+      <FullscreenToggle />
       {/* Top row on mobile: status + new game */}
       <div className="w-full flex flex-row items-center justify-between md:flex-col md:items-start md:space-y-4 gap-2">
         <h1 className="text-xs md:text-3xl font-black text-emerald-400 italic tracking-tighter uppercase drop-shadow-[0_4px_12px_rgba(16,185,129,0.5)] truncate max-w-[50vw] md:max-w-none">{statusLog}</h1>
