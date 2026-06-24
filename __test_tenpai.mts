@@ -1,6 +1,7 @@
 import { checkWinningAgari } from './lib/mahjongLogic';
+import { Tile } from './lib/mahjongTypes';
 
-const hand = [
+const hand: Tile[] = [
   {suit:'m',value:1,id:'m1a'},{suit:'m',value:2,id:'m2a'},{suit:'m',value:3,id:'m3a'},
   {suit:'m',value:4,id:'m4a'},{suit:'m',value:5,id:'m5a'},{suit:'m',value:6,id:'m6a'},
   {suit:'m',value:7,id:'m7a'},{suit:'m',value:8,id:'m8a'},{suit:'m',value:9,id:'m9a'},
