@@ -29,13 +29,13 @@ export default function HandTiles({
   return (
     <div className="fixed md:relative bottom-0 md:bottom-auto left-0 w-full z-[999] md:z-[250] pb-[env(safe-area-inset-bottom)] md:pb-6 px-0 md:px-4">
       {/* 手机端：整个手牌区悬浮在底部，与 melds 一起 */}
-      <div className="flex items-end justify-center w-full gap-1 md:gap-6">
+      <div className="flex items-end justify-center w-full gap-0 md:gap-6">
         {/* 左侧：副露独立区 */}
-        <div className="flex gap-0.5 md:gap-4 pb-1 md:pb-6 min-w-[30px] md:min-w-[150px] items-end shrink-0">
+        <div className="flex gap-px md:gap-4 pb-1 md:pb-6 min-w-[30px] md:min-w-[150px] items-end shrink-0">
           {playerMelds.map((meld, mi) => (
             <div
               key={`meld-gp-${mi}`}
-              className="flex gap-0.5 md:gap-1.5 bg-black/60 p-1 md:p-4 rounded-lg md:rounded-[2rem] border border-white/10 shadow-2xl transform rotate-1"
+              className="flex gap-px md:gap-1.5 bg-black/60 p-0.5 md:p-4 rounded-lg md:rounded-[2rem] border border-white/10 shadow-2xl transform rotate-1"
             >
               {meld.map((tile, ti) => (
                 <div
@@ -55,7 +55,7 @@ export default function HandTiles({
 
         {/* 中间容器：手机端大牌横向滑动，桌面端自然平铺 */}
         <div className="flex items-end bg-black/60 md:bg-black/80 p-2 md:p-8 rounded-xl md:rounded-[5rem] border border-white/10 backdrop-blur-3xl shadow-[0_60px_120px_-20px_rgba(0,0,0,1)] max-w-full md:max-w-none flex-1 md:flex-initial overflow-x-auto md:overflow-visible snap-x snap-mandatory scrollbar-none">
-          <div className="flex gap-1 md:gap-1 items-end overflow-visible flex-nowrap mx-auto px-2 md:px-0">
+          <div className="flex gap-0.5 md:gap-1 items-end overflow-visible flex-nowrap mx-auto px-0 md:px-0">
             {/* 13 张主手牌物理阵列 */}
             {playerHand.map((tile, i) => {
               const waitList = hints[tile.id];

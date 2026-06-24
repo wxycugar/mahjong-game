@@ -6,6 +6,7 @@ import { evaluateDoraStatus, checkWinningAgari, calculateDiscardRiskScore } from
 import GameHeader from '@/components/GameHeader';
 import MahjongTable from '@/components/MahjongTable';
 import GameOverOverlay from '@/components/GameOverOverlay';
+import OrientationLock from '@/components/OrientationLock';
 
 /**
  * =============================================================================
@@ -281,7 +282,9 @@ export default function MahjongGame() {
   const handSize = playerHand.length + (drawnTile ? 1 : 0);
 
   return (
-    <main className="min-h-[100dvh] md:min-h-screen bg-[#040608] text-white flex flex-col items-center py-2 md:py-4 px-2 font-sans select-none overflow-hidden relative w-full max-w-[100vw] overflow-x-hidden">
+    <>
+      <OrientationLock />
+      <main className="min-h-[100dvh] md:min-h-screen bg-[#040608] text-white flex flex-col items-center py-2 md:py-4 px-2 font-sans select-none overflow-hidden relative w-full max-w-[100vw] overflow-x-hidden">
       <GameHeader
         statusLog={statusLog}
         deckSize={deckSize}
@@ -315,6 +318,7 @@ export default function MahjongGame() {
         finalStats={finalStats}
         onNewGame={handleGameInit}
       />
-    </main>
+      </main>
+    </>
   );
 }
