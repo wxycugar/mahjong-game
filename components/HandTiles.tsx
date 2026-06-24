@@ -27,9 +27,9 @@ export default function HandTiles({
   onDraw,
 }: HandTilesProps) {
   return (
-    <div className="w-full flex items-end justify-center px-1 md:px-4 gap-2 md:gap-6 z-[250] pb-2 md:pb-6 relative h-auto md:h-[150px]">
+    <div className="w-full flex items-end justify-center px-1 md:px-4 gap-2 md:gap-6 z-[250] pb-[env(safe-area-inset-bottom,0.5rem)] md:pb-6 relative h-auto md:h-[150px] mt-auto">
       {/* 左侧：副露独立区 */}
-      <div className="flex gap-1 md:gap-4 pb-2 md:pb-6 min-w-[60px] md:min-w-[150px]">
+      <div className="flex gap-1 md:gap-4 pb-2 md:pb-6 min-w-[40px] md:min-w-[150px]">
         {playerMelds.map((meld, mi) => (
           <div
             key={`meld-gp-${mi}`}
