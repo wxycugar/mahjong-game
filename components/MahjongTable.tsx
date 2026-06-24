@@ -1,0 +1,76 @@
+'use client';
+
+import React from 'react';
+import { Tile, GamePhase } from '@/lib/mahjongTypes';
+import OpponentHands from './OpponentHands';
+import DiscardPile from './DiscardPile';
+import ActionBar from './ActionBar';
+import HandTiles from './HandTiles';
+
+interface MahjongTableProps {
+  aiHands: Tile[][];
+  discards: Tile[];
+  canRon: boolean;
+  canPon: boolean;
+  canTsumo: boolean;
+  playerHand: Tile[];
+  playerMelds: Tile[][];
+  drawnTile: Tile | null;
+  hints: Record<string, string[]>;
+  canDiscard: boolean;
+  isAiProcessing: boolean;
+  gameState: GamePhase;
+  onRon: () => void;
+  onPon: () => void;
+  onTsumo: () => void;
+  onDiscard: (tile: Tile, index?: number) => void;
+  onDraw: () => void;
+}
+
+export default function MahjongTable({
+  aiHands,
+  discards,
+  canRon,
+  canPon,
+  canTsumo,
+  playerHand,
+  playerMelds,
+  drawnTile,
+  hints,
+  canDiscard,
+  isAiProcessing,
+  gameState,
+  onRon,
+  onPon,
+  onTsumo,
+  onDiscard,
+  onDraw,
+}: MahjongTableProps) {
+  return (
+    <div className="relative w-full max-w-6xl flex-grow bg-gradient-to-br from-[#1b4332] via-[#081c15] to-[#010c08] rounded-[6rem] border-[22px] border-[#0a0f0d] shadow-[0_80px_150px_-20px_rgba(0,0,0,1)] flex flex-col p-12 overflow-hidden border-double relative">
+      <OpponentHands aiHands={aiHands} />
+      <DiscardPile discards={discards} />
+
+      <ActionBar
+        canRon={canRon}
+        canPon={canPon}
+        canTsumo={canTsumo}
+        onRon={onRon}
+        onPon={onPon}
+        onTsumo={onTsumo}
+      />
+
+      <HandTiles
+        playerHand={playerHand}
+        playerMelds={playerMelds}
+        drawnTile={drawnTile}
+        hints={hints}
+        canDiscard={canDiscard}
+        isAiProcessing={isAiProcessing}
+        gameState={gameState}
+        onDiscard={onDiscard}
+        onDraw={onDraw}
+      />
+    </div>
+  );
+}

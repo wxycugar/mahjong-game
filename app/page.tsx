@@ -1,201 +1,320 @@
 'use client';
-import { useState, useEffect } from 'react';
 
-// --- 1. 类型定义 ---
-interface Tile {
-  suit: 'm' | 'p' | 's' | 'z'; // 万, 筒, 条, 字
-  value: number;
-  id: string;
-}
+import React, { useState, useCallback } from 'react';
+import { Tile, GamePhase, MatchScoringSummary, MASTER_METADATA_CENTER } from '@/lib/mahjongTypes';
+import { evaluateDoraStatus, checkWinningAgari, calculateDiscardRiskScore } from '@/lib/mahjongLogic';
+import GameHeader from '@/components/GameHeader';
+import MahjongTable from '@/components/MahjongTable';
+import GameOverOverlay from '@/components/GameOverOverlay';
 
+/**
+ * =============================================================================
+ * 【游戏主引擎控制中心 - THE CORE ENGINE】
+ * -----------------------------------------------------------------------------
+ * 管理 136 张牌的全生命周期和异步回合流。
+ * 核心升级：增加了"AI 鸣牌拦截"判定。
+ * =============================================================================
+ */
 export default function MahjongGame() {
-  // --- 2. 状态管理 ---
-  const [deck, setDeck] = useState<Tile[]>([]);          // 牌墙
-  const [playerHand, setPlayerHand] = useState<Tile[]>([]); // 玩家手牌
-  const [aiHands, setAiHands] = useState<Tile[][]>([[], [], []]); // 三个AI的手牌
-  const [drawnTile, setDrawnTile] = useState<Tile | null>(null); // 玩家刚摸的牌
-  const [discards, setDiscards] = useState<Tile[]>([]); // 牌河
-  const [gameState, setGameState] = useState<'idle' | 'playing' | 'won'>('idle');
-  const [message, setMessage] = useState('欢迎来到单机麻将');
+  // --- 3.1 资产状态清单 ---
+  const [deck, setDeck] = useState<Tile[]>([]);
+  const [playerHand, setPlayerHand] = useState<Tile[]>([]);
+  const [playerMelds, setPlayerMelds] = useState<Tile[][]>([]);
+  const [aiHands, setAiHands] = useState<Tile[][]>([[], [], []]);
+  const [aiMelds, setAiMelds] = useState<Tile[][][]>([[], [], []]); // AI 副露区存储
+  const [drawnTile, setDrawnTile] = useState<Tile | null>(null);
+  const [discards, setDiscards] = useState<Tile[]>([]);
 
-  // --- 3. 核心逻辑：排序 ---
-  const sortTiles = (tiles: Tile[]) => {
-    const order = { m: 1, p: 2, s: 3, z: 4 };
+  // --- 3.2 局势变量监控 ---
+  const [doraIndicator, setDoraIndicator] = useState<Tile | null>(null);
+  const [hints, setHints] = useState<Record<string, string[]>>({});
+  const [gameState, setGameState] = useState<GamePhase>('idle');
+  const [canPonTile, setCanPonTile] = useState<Tile | null>(null);
+  const [canRonTile, setCanRonTile] = useState<Tile | null>(null);
+  const [isAiProcessing, setIsAiProcessing] = useState(false);
+  const [statusLog, setStatusLog] = useState('RIICHI NEOS PRO V2.0');
+  const [finalStats, setFinalStats] = useState<MatchScoringSummary>({ han: 0, doraCount: 0, winType: '' });
+
+  // 工具：整理手牌算法
+  const handleSortTiles = useCallback((tiles: Tile[]) => {
+    const sMap = { m: 1, p: 2, s: 3, z: 4 };
     return [...tiles].sort((a, b) => {
-      if (a.suit !== b.suit) return order[a.suit] - order[b.suit];
+      if (a.suit !== b.suit) return sMap[a.suit] - sMap[b.suit];
       return a.value - b.value;
     });
+  }, []);
+
+  /**
+   * 功能：听牌分析扫描仪 (Scanner)
+   */
+  const performTenpaiScan = (hand: Tile[], drawn: Tile | null) => {
+    const fullSet = drawn ? [...hand, drawn] : hand;
+    const reportData: Record<string, string[]> = {};
+
+    fullSet.forEach((discardTarget) => {
+      const simulatedRemain = fullSet.filter(t => t.id !== discardTarget.id);
+      const matchedWaits: string[] = [];
+      MASTER_METADATA_CENTER.forEach(type => {
+        const virtualTile = { ...type, id: 'sim-id' };
+        if (checkWinningAgari([...simulatedRemain, virtualTile], playerMelds.length)) {
+          matchedWaits.push(`${type.suit}${type.value}`);
+        }
+      });
+      if (matchedWaits.length > 0) reportData[discardTarget.id] = matchedWaits;
+    });
+    setHints(reportData);
   };
 
-  // --- 4. 初始化游戏 ---
-  const initGame = () => {
-    const newDeck: Tile[] = [];
-    const suits: ('m' | 'p' | 's')[] = ['m', 'p', 's'];
-    
-    // 生成136张牌
-    suits.forEach(s => {
+  /**
+   * 动作：初始化一场标准的对战
+   */
+  const handleGameInit = () => {
+    const masterDeckArray: Tile[] = [];
+    (['m', 'p', 's'] as const).forEach(suit => {
       for (let v = 1; v <= 9; v++) {
-        for (let i = 0; i < 4; i++) newDeck.push({ suit: s, value: v, id: `${s}${v}-${i}` });
+        for (let i = 0; i < 4; i++) {
+          masterDeckArray.push({ suit, value: v, id: `Tile-${suit}${v}-${i}-${Math.random().toString(36).substring(2, 7)}` });
+        }
       }
     });
     for (let v = 1; v <= 7; v++) {
-      for (let i = 0; i < 4; i++) newDeck.push({ suit: 'z', value: v, id: `z${v}-${i}` });
-    }
-
-    // 洗牌
-    for (let i = newDeck.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newDeck[i], newDeck[j]] = [newDeck[j], newDeck[i]];
-    }
-
-    // 分牌
-    const pHand = sortTiles(newDeck.slice(0, 13));
-    const ai1 = sortTiles(newDeck.slice(13, 26));
-    const ai2 = sortTiles(newDeck.slice(26, 39));
-    const ai3 = sortTiles(newDeck.slice(39, 52));
-
-    setPlayerHand(pHand);
-    setAiHands([ai1, ai2, ai3]);
-    setDeck(newDeck.slice(52));
-    setDiscards([]);
-    setDrawnTile(null);
-    setGameState('playing');
-    setMessage('游戏开始，请摸牌');
-  };
-
-  // --- 5. 摸牌逻辑 ---
-  const handleDraw = () => {
-    if (drawnTile || deck.length === 0 || gameState !== 'playing') return;
-    const [newTile, ...rest] = deck;
-    setDrawnTile(newTile);
-    setDeck(rest);
-    setMessage('请选择一张牌打出');
-  };
-
-  // --- 6. 出牌逻辑 (玩家) ---
-  const handleDiscard = (tile: Tile, index?: number) => {
-    if (!drawnTile && playerHand.length !== 14) return;
-
-    setDiscards(prev => [...prev, tile]);
-    
-    let newHand = [...playerHand];
-    if (index !== undefined) {
-      newHand.splice(index, 1);
-      if (drawnTile) newHand.push(drawnTile);
-    }
-    
-    setPlayerHand(sortTiles(newHand));
-    setDrawnTile(null);
-    setMessage('AI 正在思考...');
-
-    // 触发 AI 回合
-    setTimeout(runAiTurns, 800);
-  };
-
-  // --- 7. AI 简单逻辑 ---
-  const runAiTurns = () => {
-    // 这里简化处理：AI 摸一张立刻打一张
-    let currentDeck = [...deck];
-    const newDiscards: Tile[] = [];
-
-    for (let i = 0; i < 3; i++) {
-      if (currentDeck.length > 0) {
-        const [aiDraw, ...rest] = currentDeck;
-        newDiscards.push(aiDraw); // AI 摸了直接打出
-        currentDeck = rest;
+      for (let i = 0; i < 4; i++) {
+        masterDeckArray.push({ suit: 'z', value: v, id: `Tile-z${v}-${i}-${Math.random().toString(36).substring(2, 7)}` });
       }
     }
 
-    setDeck(currentDeck);
-    setDiscards(prev => [...prev, ...newDiscards]);
-    setMessage('到你了，请摸牌');
+    // 强力洗牌
+    for (let i = masterDeckArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [masterDeckArray[i], masterDeckArray[j]] = [masterDeckArray[j], masterDeckArray[i]];
+    }
+
+    setDoraIndicator(masterDeckArray[0]);
+    setPlayerHand(handleSortTiles(masterDeckArray.slice(1, 14)));
+    setAiHands([
+      handleSortTiles(masterDeckArray.slice(14, 27)),
+      handleSortTiles(masterDeckArray.slice(27, 40)),
+      handleSortTiles(masterDeckArray.slice(40, 53))
+    ]);
+    setAiMelds([[], [], []]);
+    setDeck(masterDeckArray.slice(53));
+    setDiscards([]); setDrawnTile(null); setPlayerMelds([]); setHints({});
+    setGameState('playing'); setCanPonTile(null); setCanRonTile(null); setIsAiProcessing(false);
+    setStatusLog('对局已就绪，请点击摸牌开始');
   };
 
+  /**
+   * 动作：玩家摸牌
+   */
+  const handleUserDraw = () => {
+    if (drawnTile || deck.length <= 14 || isAiProcessing || gameState !== 'playing') {
+      if (deck.length <= 14 && gameState === 'playing') setGameState('draw');
+      return;
+    }
+    const [newlyDrawnTile, ...restDeck] = deck;
+    setDrawnTile(newlyDrawnTile);
+    setDeck(restDeck);
+    performTenpaiScan(playerHand, newlyDrawnTile);
+    setStatusLog('摸牌成功，请弃牌');
+  };
+
+  /**
+   * 动作：玩家弃牌
+   */
+  const handleUserDiscard = (tile: Tile, index?: number) => {
+    if (isAiProcessing || gameState !== 'playing') return;
+    setDiscards(prev => [...prev, tile]);
+
+    let nextHand = [...playerHand];
+    if (index !== undefined) {
+      nextHand.splice(index, 1);
+      if (drawnTile) nextHand.push(drawnTile);
+    }
+
+    setPlayerHand(handleSortTiles(nextHand));
+    setDrawnTile(null); setHints({}); setCanPonTile(null); setCanRonTile(null);
+    initiateAiLoopCycle(nextHand);
+  };
+
+  /**
+   * 核心重构：AI 回合自动化流处理 (带有 AI 鸣牌与拦截机制)
+   */
+  const initiateAiLoopCycle = async (updatedPlayerHand: Tile[]) => {
+    setIsAiProcessing(true);
+    let wallSnapshot = [...deck];
+    let aiHandsSnapshots = [...aiHands];
+    let aiMeldsSnapshots = [...aiMelds];
+
+    // 处理三家对手
+    for (let i = 0; i < 3; i++) {
+      if (wallSnapshot.length <= 14) { setGameState('draw'); setIsAiProcessing(false); return; }
+      setStatusLog(`对手 AI ${i + 1} 思考策略中...`);
+      await new Promise(res => setTimeout(res, 950));
+
+      // 1. AI 摸牌动作
+      const aiDrawn = wallSnapshot.shift()!;
+      const currentAiFullHand = [...aiHandsSnapshots[i], aiDrawn];
+
+      // 2. AI 胡牌检测 (自摸)
+      if (checkWinningAgari(currentAiFullHand, aiMeldsSnapshots[i].length)) {
+        aiHandsSnapshots[i] = handleSortTiles(currentAiFullHand);
+        setAiHands(aiHandsSnapshots);
+        setGameState('ai_won');
+        setIsAiProcessing(false);
+        return;
+      }
+
+      // 3. AI 调用大脑评分计算最优弃牌
+      let maxScoreValue = -1000, bestIdx = 0;
+      for (let x = 0; x < currentAiFullHand.length; x++) {
+        const weightScore = calculateDiscardRiskScore(currentAiFullHand[x], x, currentAiFullHand);
+        if (weightScore > maxScoreValue) {
+          maxScoreValue = weightScore;
+          bestIdx = x;
+        }
+      }
+
+      const discardedByAiTile = currentAiFullHand[bestIdx];
+      currentAiFullHand.splice(bestIdx, 1);
+
+      // 同步数据
+      aiHandsSnapshots[i] = handleSortTiles(currentAiFullHand);
+      setAiHands([...aiHandsSnapshots]);
+      setDiscards(prev => [...prev, discardedByAiTile]);
+      setDeck([...wallSnapshot]);
+
+      // --- 拦截 1：玩家荣和胡牌判定 (RON) ---
+      const isPlayerRonPossible = checkWinningAgari([...updatedPlayerHand, discardedByAiTile], playerMelds.length);
+      if (isPlayerRonPossible) {
+        setCanRonTile(discardedByAiTile);
+        setIsAiProcessing(false);
+        setStatusLog('检测到可"荣和 (胡!)"');
+        return; // 中断流程
+      }
+
+      // --- 拦截 2：玩家鸣牌拦截 (PON) ---
+      const playerPonCount = updatedPlayerHand.filter(t => t.suit === discardedByAiTile.suit && t.value === discardedByAiTile.value).length;
+      if (playerPonCount >= 2) {
+        setCanPonTile(discardedByAiTile);
+        setIsAiProcessing(false);
+        setStatusLog('检测到可"碰 (PON)"');
+        return;
+      }
+
+      // --- 拦截 3：其他 AI 鸣牌逻辑 (AI进攻性升级) ---
+      for (let otherAiIdx = 0; otherAiIdx < 3; otherAiIdx++) {
+        if (otherAiIdx === i) continue; // 不拦截自己
+        const otherAiHand = aiHandsSnapshots[otherAiIdx];
+        const matches = otherAiHand.filter(t => t.suit === discardedByAiTile.suit && t.value === discardedByAiTile.value).length;
+        if (matches >= 2) {
+          // AI 选择碰牌：赋予 AI 80% 的积极性进行碰牌
+          if (Math.random() > 0.2) {
+            setStatusLog(`对手 AI ${otherAiIdx + 1} 喊了"碰 (PON)！"`);
+            const matchedTiles = otherAiHand.filter(t => t.suit === discardedByAiTile.suit && t.value === discardedByAiTile.value).slice(0, 2);
+            const remainingHand = otherAiHand.filter(t => !matchedTiles.find(m => m.id === t.id));
+
+            aiMeldsSnapshots[otherAiIdx].push([...matchedTiles, discardedByAiTile]);
+            aiHandsSnapshots[otherAiIdx] = handleSortTiles(remainingHand);
+
+            setAiMelds([...aiMeldsSnapshots]);
+            setAiHands([...aiHandsSnapshots]);
+
+            await new Promise(r => setTimeout(r, 600));
+            // AI 碰完后也需要弃一张牌，流程跳转
+            i = otherAiIdx - 1; // 顺次跳转
+            break;
+          }
+        }
+      }
+    }
+
+    setIsAiProcessing(false);
+    setStatusLog('轮到您的回合了，点击摸牌开始');
+  };
+
+  /**
+   * 动作：执行"荣和"胡牌
+   */
+  const handleRonAction = () => {
+    if (!canRonTile) return;
+    const finalSet = [...playerHand, canRonTile];
+    const doras = finalSet.filter(t => evaluateDoraStatus(t, doraIndicator)).length;
+    setFinalStats({ han: 1 + doras, doraCount: doras, winType: 'RON' });
+    setGameState('won');
+  };
+
+  /**
+   * 动作：执行"碰牌"
+   */
+  const handlePonClick = () => {
+    if (canPonTile === null) return;
+    const target = canPonTile;
+    const matchedTiles = playerHand.filter(t => t.suit === target.suit && t.value === target.value).slice(0, 2);
+    const remainingHandArray = playerHand.filter(t => !matchedTiles.find(m => m.id === t.id));
+
+    setPlayerMelds(prev => [...prev, [...matchedTiles, target]]);
+    setPlayerHand(handleSortTiles(remainingHandArray));
+    setDrawnTile(null); setCanPonTile(null); setIsAiProcessing(false);
+    performTenpaiScan(remainingHandArray, null);
+    setStatusLog('碰牌成功！请从手中弃掉一张不需要的牌');
+  };
+
+  /**
+   * 动作：自摸胡牌
+   */
+  const handleTsumoAction = () => {
+    const finalSet = drawnTile ? [...playerHand, drawnTile] : playerHand;
+    const dorasFoundCount = finalSet.filter(t => evaluateDoraStatus(t, doraIndicator)).length;
+    setFinalStats({ han: 1 + dorasFoundCount, doraCount: dorasFoundCount, winType: 'TSUMO' });
+    setGameState('won');
+  };
+
+  // 变量校对
+  const canPlayerCurrentlyDiscard = (playerHand.length + (drawnTile ? 1 : 0)) % 3 === 2;
+
+  // 计算派生布尔值
+  const derivedCanRon = !!canRonTile;
+  const derivedCanPon = !!canPonTile;
+  const derivedCanTsumo = (drawnTile || canPlayerCurrentlyDiscard) &&
+    checkWinningAgari(drawnTile ? [...playerHand, drawnTile] : playerHand, playerMelds.length);
+  const deckSize = Math.max(0, deck.length - 14);
+  const handSize = playerHand.length + (drawnTile ? 1 : 0);
+
   return (
-    <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center py-6 px-4 font-sans">
-      
-      {/* 顶部状态栏 */}
-      <div className="w-full max-w-5xl flex justify-between items-center mb-6 bg-slate-900 p-4 rounded-2xl border border-slate-800">
-        <div>
-          <h1 className="text-xl font-black text-emerald-500 uppercase tracking-tighter">Riichi Mahjong v1.0</h1>
-          <p className="text-xs text-slate-400">{message}</p>
-        </div>
-        <div className="flex gap-4 text-sm">
-          <div className="bg-black/30 px-4 py-2 rounded-lg border border-emerald-900">
-            牌墙剩余: <span className="text-emerald-400 font-mono text-lg">{deck.length}</span>
-          </div>
-          <button onClick={initGame} className="bg-emerald-600 hover:bg-emerald-500 px-6 py-2 rounded-lg font-bold transition-all">
-            {gameState === 'idle' ? '开始游戏' : '重开'}
-          </button>
-        </div>
-      </div>
+    <main className="min-h-screen bg-[#040608] text-white flex flex-col items-center py-4 px-2 font-sans select-none overflow-hidden relative">
+      <GameHeader
+        statusLog={statusLog}
+        deckSize={deckSize}
+        handSize={handSize}
+        doraIndicator={doraIndicator}
+        onNewGame={handleGameInit}
+      />
 
-      {/* 游戏主桌面 */}
-      <div className="relative w-full max-w-5xl aspect-[16/9] bg-emerald-800 rounded-[2.5rem] border-[12px] border-emerald-950 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] flex flex-col p-8 overflow-hidden">
-        
-        {/* AI 区域 (顶部和两侧简化) */}
-        <div className="flex justify-between mb-4">
-          <div className="w-24 h-12 bg-black/20 rounded-lg flex items-center justify-center text-xs text-emerald-300 border border-white/5">AI 左</div>
-          <div className="w-24 h-12 bg-black/20 rounded-lg flex items-center justify-center text-xs text-emerald-300 border border-white/5">AI 对家</div>
-          <div className="w-24 h-12 bg-black/20 rounded-lg flex items-center justify-center text-xs text-emerald-300 border border-white/5">AI 右</div>
-        </div>
+      <MahjongTable
+        aiHands={aiHands}
+        discards={discards}
+        canRon={derivedCanRon}
+        canPon={derivedCanPon}
+        canTsumo={derivedCanTsumo}
+        playerHand={playerHand}
+        playerMelds={playerMelds}
+        drawnTile={drawnTile}
+        hints={hints}
+        canDiscard={canPlayerCurrentlyDiscard}
+        isAiProcessing={isAiProcessing}
+        gameState={gameState}
+        onRon={handleRonAction}
+        onPon={handlePonClick}
+        onTsumo={handleTsumoAction}
+        onDiscard={handleUserDiscard}
+        onDraw={handleUserDraw}
+      />
 
-        {/* 牌河 (中间区域) */}
-        <div className="flex-1 bg-black/10 rounded-3xl border border-white/5 p-6 mb-6 overflow-y-auto">
-          <div className="grid grid-cols-6 sm:grid-cols-12 gap-1 justify-items-center">
-            {discards.map((tile, i) => (
-              <div key={`disc-${i}`} className="w-8 h-11 bg-white rounded-sm overflow-hidden shadow-sm opacity-90 transition-all">
-                <img src={`/tiles/${tile.suit}${tile.value}.svg`} className="w-full h-full object-cover" />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 玩家手牌区域 */}
-        <div className="flex items-end justify-center gap-1.5 h-28">
-          <div className="flex gap-1 bg-black/20 p-3 rounded-2xl border border-white/10 shadow-inner">
-            {playerHand.map((tile, i) => (
-              <button 
-                key={tile.id}
-                onClick={() => handleDiscard(tile, i)}
-                disabled={!drawnTile}
-                className={`w-11 sm:w-14 transition-all duration-300 ${drawnTile ? 'hover:-translate-y-6 cursor-pointer scale-100' : 'opacity-80 scale-95 cursor-not-allowed'}`}
-              >
-                <img src={`/tiles/${tile.suit}${tile.value}.svg`} className="w-full h-auto drop-shadow-xl rounded-sm" />
-              </button>
-            ))}
-          </div>
-
-          <div className="w-6" /> {/* 间隙 */}
-
-          {/* 摸牌展示 */}
-          <div className="w-14 h-20 flex flex-col items-center">
-            {drawnTile ? (
-              <button 
-                onClick={() => handleDiscard(drawnTile)}
-                className="w-11 sm:w-14 hover:-translate-y-6 transition-all"
-              >
-                <img src={`/tiles/${drawnTile.suit}${drawnTile.value}.svg`} className="w-full h-auto drop-shadow-2xl border-b-4 border-yellow-500 rounded-sm" />
-                <span className="text-[10px] text-yellow-400 font-bold uppercase mt-1">Draw</span>
-              </button>
-            ) : (
-              gameState === 'playing' && (
-                <button 
-                  onClick={handleDraw}
-                  className="w-full h-full border-2 border-dashed border-emerald-400/30 rounded-xl flex items-center justify-center group hover:border-emerald-400/60 transition-all"
-                >
-                  <span className="text-[10px] text-emerald-400/50 group-hover:text-emerald-400 font-bold">摸牌</span>
-                </button>
-              )
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* 底部装饰 */}
-      <div className="mt-8 text-slate-600 text-[10px] uppercase tracking-[0.2em]">
-        Handcrafted for Japanese Mahjong Enthusiasts
-      </div>
+      <GameOverOverlay
+        gameState={gameState}
+        finalStats={finalStats}
+        onNewGame={handleGameInit}
+      />
     </main>
   );
 }
