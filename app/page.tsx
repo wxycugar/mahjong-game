@@ -284,7 +284,7 @@ export default function MahjongGame() {
   return (
     <>
       <OrientationLock />
-      <main className="min-h-[100dvh] md:min-h-screen bg-[#040608] text-white flex flex-col items-center py-2 md:py-4 px-2 font-sans select-none overflow-hidden relative w-full max-w-[100vw] overflow-x-hidden">
+      <main className="h-[100dvh] w-full overflow-hidden flex flex-col items-center bg-[#040608] text-white font-sans select-none relative">
       <GameHeader
         statusLog={statusLog}
         deckSize={deckSize}

@@ -10,7 +10,7 @@ interface DiscardPileProps {
 export default function DiscardPile({ discards }: DiscardPileProps) {
   return (
     <div className="flex-1 flex justify-center items-center py-6 md:py-6 z-10 relative min-h-0">
-      <div className="grid grid-cols-5 md:grid-cols-6 gap-0.5 md:gap-x-4 md:gap-y-4 p-1.5 md:p-10 bg-black/40 rounded-2xl md:rounded-[4.5rem] border border-white/10 max-h-[45vh] md:max-h-[280px] overflow-y-auto custom-scrollbar shadow-inner w-full mx-2 md:mx-0">
+      <div className="flex flex-wrap justify-center gap-1 md:gap-1.5 p-1.5 md:p-10 bg-black/40 rounded-2xl md:rounded-[4.5rem] border border-white/10 max-h-[45vh] md:max-h-[280px] overflow-y-auto custom-scrollbar shadow-inner w-full mx-2 md:mx-0">
         {discards.map((tile) => (
           <div
             key={tile.id}
