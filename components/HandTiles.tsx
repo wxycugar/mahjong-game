@@ -54,8 +54,8 @@ export default function HandTiles({
         </div>
 
         {/* 中间容器：手机端大牌横向滑动，桌面端自然平铺 */}
-        <div className="flex items-center bg-black/60 md:bg-black/80 p-2 md:p-8 rounded-xl md:rounded-[5rem] border border-white/10 backdrop-blur-3xl shadow-[0_60px_120px_-20px_rgba(0,0,0,1)] max-w-full md:max-w-none flex-1 md:flex-initial">
-          <div className="flex flex-wrap justify-center content-center gap-1 mx-auto px-0 md:px-0">
+        <div className="flex items-center bg-black/60 md:bg-black/80 p-2 md:p-8 rounded-xl md:rounded-[5rem] border border-white/10 backdrop-blur-3xl shadow-[0_60px_120px_-20px_rgba(0,0,0,1)] w-full md:max-w-none flex-1 md:flex-initial px-1 md:px-0">
+          <div className="grid grid-cols-6 gap-x-1 gap-y-2 justify-items-center md:flex md:flex-nowrap md:w-auto md:justify-center mx-auto">
             {/* 13 张主手牌物理阵列 */}
             {playerHand.map((tile, i) => {
               const waitList = hints[tile.id];
