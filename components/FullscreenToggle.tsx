@@ -61,7 +61,7 @@ export default function FullscreenToggle() {
     <button
       onClick={handleToggle}
       className="absolute top-1 right-1 md:top-2 md:right-2 z-[999] px-2 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black uppercase tracking-wider border transition-all duration-200 shrink-0
-        bg-white/10 border-white/20 text-white/80 hover:bg-white/20 hover:text-white active:scale-90"
+        bg-white/10 border-white/20 text-white/80 hover:bg-white/20 hover:text-white active:scale-90 md:hidden"
       title={isFullscreen ? '退出全屏' : '全屏模式'}
     >
       {isFullscreen ? (
