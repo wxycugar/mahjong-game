@@ -27,7 +27,7 @@ export default function HandTiles({
   onDraw,
 }: HandTilesProps) {
   return (
-    <div className="relative bottom-0 left-0 w-full shrink-0 pb-2 md:pb-6 px-0 md:px-4">
+    <div className="relative bottom-0 left-0 w-full shrink-0 pb-1 md:pb-6 pl-0.5 md:px-4">
       {/* 手机端：整个手牌区悬浮在底部，与 melds 一起 */}
       <div className="flex items-end justify-center w-full gap-0 md:gap-6">
         {/* 左侧：副露独立区 */}
@@ -54,8 +54,8 @@ export default function HandTiles({
         </div>
 
         {/* 中间容器：手机端大牌横向滑动，桌面端自然平铺 */}
-        <div className="flex items-center bg-black/60 md:bg-black/80 p-2 md:p-8 rounded-xl md:rounded-[5rem] border border-white/10 backdrop-blur-3xl shadow-[0_60px_120px_-20px_rgba(0,0,0,1)] w-full md:max-w-none flex-1 md:flex-initial px-1 md:px-0">
-          <div className="grid grid-cols-6 gap-x-1 gap-y-2 justify-items-center md:flex md:flex-nowrap md:w-auto md:justify-center mx-auto">
+        <div className="flex items-center bg-black/60 md:bg-black/80 p-2 md:p-8 rounded-xl md:rounded-[5rem] border border-white/10 backdrop-blur-3xl shadow-[0_60px_120px_-20px_rgba(0,0,0,1)] w-full md:max-w-none flex-1 md:flex-initial pl-1 pr-1 md:px-0">
+          <div className="grid grid-cols-6 gap-x-1 gap-y-1 justify-items-start md:flex md:flex-nowrap md:w-auto md:justify-center md:mx-auto">
             {/* 13 张主手牌物理阵列 */}
             {playerHand.map((tile, i) => {
               const waitList = hints[tile.id];
