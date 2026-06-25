@@ -9,9 +9,11 @@ export default function MahjongGame() {
   const game = useMahjongGame();
 
   return (
-    <main className="w-full min-h-screen flex flex-col justify-start items-center text-white font-sans select-none relative
-  before:fixed before:inset-0 before:z-0 before:bg-[url('/bg.webp')] before:bg-cover before:bg-center before:bg-no-repeat before:opacity-25 before:pointer-events-none
-  after:fixed after:inset-0 after:z-0 after:bg-gradient-to-b after:from-[#040608]/95 after:via-[#040608]/80 after:to-[#040608]/95 after:pointer-events-none">
+    <main className="w-full min-h-screen flex flex-col justify-start items-center text-white font-sans select-none relative z-0
+  before:fixed before:inset-0 before:z-0 before:bg-[url('/bg.webp')] before:bg-cover before:bg-center before:bg-no-repeat before:opacity-15 before:pointer-events-none
+  after:fixed after:inset-0 after:z-[1] after:bg-gradient-to-b after:from-[#040608]/95 after:via-[#040608]/85 after:to-[#040608]/95 after:pointer-events-none">
+    {/* Content sits above the fixed overlays */}
+    <div className="relative z-10 w-full flex flex-col items-center min-h-screen px-1 md:px-4">
       <GameHeader
         statusLog={game.statusLog}
         deckSize={game.deckSize}
@@ -49,6 +51,7 @@ export default function MahjongGame() {
         aiWinnerInfo={game.aiWinnerInfo}
         onNewGame={game.handleGameInit}
       />
+      </div>
       </main>
   );
 }

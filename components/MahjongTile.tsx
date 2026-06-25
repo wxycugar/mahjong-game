@@ -20,7 +20,11 @@ export default function MahjongTile({
   disabled,
   isDrawn,
 }: MahjongTileProps) {
-  const sharedClasses = `relative bg-white overflow-hidden ${className}`;
+  const shadowClass = isDrawn
+    ? 'shadow-[0_6px_0_#b8860b,0_8px_16px_rgba(0,0,0,0.6)]'
+    : 'shadow-[0_4px_0_#bbb,0_6px_12px_rgba(0,0,0,0.5)]';
+
+  const sharedClasses = `relative bg-white overflow-hidden ${shadowClass} ${className}`;
 
   const imgClasses = `w-full h-full object-contain ${
     isWait
@@ -53,6 +57,8 @@ export default function MahjongTile({
       <div className="absolute top-0 left-0 right-0 h-[1px] md:h-[2px] bg-white/60 pointer-events-none" />
       {/* 左侧高光 */}
       <div className="absolute top-0 left-0 bottom-0 w-[1px] md:w-[2px] bg-white/30 pointer-events-none" />
+      {/* 右下暗部模拟厚度 */}
+      <div className="absolute bottom-0 right-0 w-[1px] md:w-[2px] h-[1px] md:h-[2px] bg-black/10 pointer-events-none" />
     </>
   );
 
