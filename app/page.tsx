@@ -9,7 +9,9 @@ export default function MahjongGame() {
   const game = useMahjongGame();
 
   return (
-    <main className="w-full min-h-screen flex flex-col justify-start items-center bg-[#040608] text-white font-sans select-none relative">
+    <main className="w-full min-h-screen flex flex-col justify-start items-center text-white font-sans select-none relative
+  before:fixed before:inset-0 before:z-0 before:bg-[url('/bg.webp')] before:bg-cover before:bg-center before:bg-no-repeat before:opacity-25 before:pointer-events-none
+  after:fixed after:inset-0 after:z-0 after:bg-gradient-to-b after:from-[#040608]/95 after:via-[#040608]/80 after:to-[#040608]/95 after:pointer-events-none">
       <GameHeader
         statusLog={game.statusLog}
         deckSize={game.deckSize}

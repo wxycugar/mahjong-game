@@ -19,7 +19,8 @@ export default function OpponentHands({ aiHands }: OpponentHandsProps) {
           {aiHands[1].map((_, idx) => (
             <div
               key={`at-${idx}`}
-              className="w-4 h-6 md:w-8 md:h-12 bg-emerald-950 border border-emerald-800/30 rounded shadow-inner"
+              className="w-4 h-6 md:w-8 md:h-12 bg-gradient-to-b from-emerald-800 to-emerald-950 border border-emerald-800/30 rounded shadow-inner relative overflow-hidden
+                before:absolute before:inset-0 before:bg-gradient-to-b before:from-emerald-700/40 before:to-transparent before:pointer-events-none"
             />
           ))}
         </div>
@@ -31,7 +32,8 @@ export default function OpponentHands({ aiHands }: OpponentHandsProps) {
           {aiHands[0].map((_, idx) => (
             <div
               key={`al-${idx}`}
-              className="w-4 h-6 md:w-7 md:h-10 bg-emerald-950 border border-emerald-800/30 rounded shadow-inner"
+              className="w-4 h-6 md:w-7 md:h-10 bg-gradient-to-b from-emerald-800 to-emerald-950 border border-emerald-800/30 rounded shadow-inner relative overflow-hidden
+                before:absolute before:inset-0 before:bg-gradient-to-b before:from-emerald-700/40 before:to-transparent before:pointer-events-none"
             />
           ))}
         </div>
@@ -43,7 +45,8 @@ export default function OpponentHands({ aiHands }: OpponentHandsProps) {
           {aiHands[2].map((_, idx) => (
             <div
               key={`ar-${idx}`}
-              className="w-4 h-6 md:w-7 md:h-10 bg-emerald-950 border border-emerald-800/30 rounded shadow-inner"
+              className="w-4 h-6 md:w-7 md:h-10 bg-gradient-to-b from-emerald-800 to-emerald-950 border border-emerald-800/30 rounded shadow-inner relative overflow-hidden
+                before:absolute before:inset-0 before:bg-gradient-to-b before:from-emerald-700/40 before:to-transparent before:pointer-events-none"
             />
           ))}
         </div>

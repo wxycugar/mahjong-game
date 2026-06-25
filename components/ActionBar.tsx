@@ -20,33 +20,37 @@ export default function ActionBar({ canRon, canPon, canKan, canTsumo, onRon, onP
       {canRon && (
         <button
           onClick={onRon}
-          className="w-full md:w-auto bg-orange-600 hover:bg-orange-500 text-white px-4 md:px-32 py-4 md:py-6 rounded-2xl md:rounded-full font-black animate-bounce shadow-[0_0_40px_rgba(234,88,12,1)] md:shadow-[0_0_120px_rgba(234,88,12,1)] border-2 md:border-4 border-white text-lg md:text-3xl uppercase z-[400]"
+          className="w-full md:w-auto bg-orange-600 hover:bg-orange-500 text-white px-4 md:px-32 py-4 md:py-6 rounded-2xl md:rounded-full font-black animate-bounce shadow-[0_0_40px_rgba(234,88,12,1)] md:shadow-[0_0_120px_rgba(234,88,12,1)] border-2 md:border-4 border-white text-lg md:text-3xl uppercase z-[400] relative overflow-hidden
+            before:absolute before:inset-0 before:rounded-2xl md:before:rounded-full before:bg-gradient-to-b before:from-white/[0.20] before:to-transparent before:pointer-events-none"
         >
-          荣和 (胡!)
+          <span className="relative z-10">荣和 (胡!)</span>
         </button>
       )}
       {canPon && (
         <button
           onClick={onPon}
-          className="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white px-4 md:px-28 py-4 md:py-5 rounded-2xl md:rounded-full font-black animate-pulse shadow-[0_0_30px_rgba(37,99,235,1)] md:shadow-[0_0_80px_rgba(37,99,235,1)] border-2 md:border-2 border-white/40 text-lg md:text-3xl uppercase"
+          className="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white px-4 md:px-28 py-4 md:py-5 rounded-2xl md:rounded-full font-black animate-pulse shadow-[0_0_30px_rgba(37,99,235,1)] md:shadow-[0_0_80px_rgba(37,99,235,1)] border-2 md:border-2 border-white/40 text-lg md:text-3xl uppercase relative overflow-hidden
+            before:absolute before:inset-0 before:rounded-2xl md:before:rounded-full before:bg-gradient-to-b before:from-white/[0.18] before:to-transparent before:pointer-events-none"
         >
-          碰 (PON!)
+          <span className="relative z-10">碰 (PON!)</span>
         </button>
       )}
       {canKan && (
         <button
           onClick={onKan}
-          className="w-full md:w-auto bg-purple-600 hover:bg-purple-500 text-white px-4 md:px-28 py-4 md:py-5 rounded-2xl md:rounded-full font-black animate-pulse shadow-[0_0_30px_rgba(147,51,234,1)] md:shadow-[0_0_80px_rgba(147,51,234,1)] border-2 md:border-2 border-white/40 text-lg md:text-3xl uppercase"
+          className="w-full md:w-auto bg-purple-600 hover:bg-purple-500 text-white px-4 md:px-28 py-4 md:py-5 rounded-2xl md:rounded-full font-black animate-pulse shadow-[0_0_30px_rgba(147,51,234,1)] md:shadow-[0_0_80px_rgba(147,51,234,1)] border-2 md:border-2 border-white/40 text-lg md:text-3xl uppercase relative overflow-hidden
+            before:absolute before:inset-0 before:rounded-2xl md:before:rounded-full before:bg-gradient-to-b before:from-white/[0.18] before:to-transparent before:pointer-events-none"
         >
-          杠 (KAN!)
+          <span className="relative z-10">杠 (KAN!)</span>
         </button>
       )}
       {canTsumo && (
         <button
           onClick={onTsumo}
-          className="w-full md:w-auto bg-orange-500 hover:bg-orange-400 text-white px-4 md:px-32 py-4 md:py-6 rounded-2xl md:rounded-full font-black animate-bounce shadow-[0_0_40px_rgba(249,115,22,1)] md:shadow-[0_0_100px_rgba(249,115,22,1)] border-2 md:border-4 border-white text-lg md:text-3xl uppercase z-[400]"
+          className="w-full md:w-auto bg-orange-500 hover:bg-orange-400 text-white px-4 md:px-32 py-4 md:py-6 rounded-2xl md:rounded-full font-black animate-bounce shadow-[0_0_40px_rgba(249,115,22,1)] md:shadow-[0_0_100px_rgba(249,115,22,1)] border-2 md:border-4 border-white text-lg md:text-3xl uppercase z-[400] relative overflow-hidden
+            before:absolute before:inset-0 before:rounded-2xl md:before:rounded-full before:bg-gradient-to-b before:from-white/[0.20] before:to-transparent before:pointer-events-none"
         >
-          自摸 (胡!)
+          <span className="relative z-10">自摸 (胡!)</span>
         </button>
       )}
     </div>

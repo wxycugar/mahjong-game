@@ -46,6 +46,16 @@ export default function MahjongTile({
     <div className="absolute -top-2 -right-2 md:-top-4 md:-right-4 bg-yellow-400 w-4 h-4 md:w-9 md:h-9 rounded-full border-2 md:border-3 border-white animate-ping" />
   ) : null;
 
+  // 3D物理质感层：底部阴影条模拟牌面厚度 + 斜面高光
+  const bevelOverlay = (
+    <>
+      {/* 顶部高光条 */}
+      <div className="absolute top-0 left-0 right-0 h-[1px] md:h-[2px] bg-white/60 pointer-events-none" />
+      {/* 左侧高光 */}
+      <div className="absolute top-0 left-0 bottom-0 w-[1px] md:w-[2px] bg-white/30 pointer-events-none" />
+    </>
+  );
+
   if (onClick) {
     return (
       <button
@@ -57,6 +67,7 @@ export default function MahjongTile({
       >
         {img}
         {watermark}
+        {bevelOverlay}
         {pingDot}
       </button>
     );
@@ -66,6 +77,7 @@ export default function MahjongTile({
     <div className={sharedClasses}>
       {img}
       {watermark}
+      {bevelOverlay}
       {pingDot}
     </div>
   );

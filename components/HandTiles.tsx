@@ -50,7 +50,8 @@ export default function HandTiles({
         </div>
 
         {/* 中间容器：手机端大牌横向滑动，桌面端自然平铺 */}
-        <div className="flex items-center bg-black/60 md:bg-black/80 p-2 md:p-8 rounded-[2rem] md:rounded-[5rem] border border-white/10 backdrop-blur-3xl shadow-[0_60px_120px_-20px_rgba(0,0,0,1)] w-full md:max-w-none flex-1 md:flex-initial pl-1 pr-1 md:px-0">
+        <div className="flex items-center bg-black/60 md:bg-black/80 p-2 md:p-8 rounded-[2rem] md:rounded-[5rem] border border-white/10 backdrop-blur-3xl shadow-[0_60px_120px_-20px_rgba(0,0,0,1)] w-full md:max-w-none flex-1 md:flex-initial pl-1 pr-1 md:px-0
+            before:absolute before:inset-0 before:rounded-[2rem] md:before:rounded-[5rem] before:bg-gradient-to-b before:from-white/[0.04] before:to-transparent before:pointer-events-none relative overflow-hidden">
           <div className="grid grid-cols-6 gap-x-1 gap-y-1 justify-items-start md:flex md:flex-nowrap md:w-auto md:justify-center md:mx-auto">
             {/* 13 张主手牌物理阵列 */}
             {playerHand.map((tile, i) => {

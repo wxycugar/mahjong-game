@@ -51,7 +51,11 @@ export default function MahjongTable({
   onDraw,
 }: MahjongTableProps) {
   return (
-    <div className="relative w-full max-w-6xl flex-1 flex flex-col bg-gradient-to-br from-[#1b4332] via-[#081c15] to-[#010c08] rounded-[3rem] md:rounded-[6rem] border-[10px] md:border-[22px] border-[#0a0f0d] shadow-[0_80px_150px_-20px_rgba(0,0,0,1)] p-2 md:p-12 pb-[40px] md:pb-12 overflow-hidden border-double">
+    <div className="relative w-full max-w-6xl flex-1 flex flex-col rounded-[3rem] md:rounded-[6rem] border-[10px] md:border-[22px] border-[#0a0f0d] shadow-[0_80px_150px_-20px_rgba(0,0,0,1)] p-2 md:p-12 pb-[40px] md:pb-12 overflow-hidden border-double
+      before:absolute before:inset-0 before:z-0 before:bg-[url('/bg.webp')] before:bg-cover before:bg-center before:opacity-20 before:pointer-events-none
+      after:absolute after:inset-0 after:z-[1] after:bg-gradient-to-br after:from-[#1b4332]/90 after:via-[#081c15]/85 after:to-[#010c08]/95 after:pointer-events-none">
+      {/* z-[2] wrapper for all table content so it sits above overlays */}
+      <div className="relative z-[2] flex-1 flex flex-col">
       <OpponentHands aiHands={aiHands} />
       <DiscardPile discards={discards} />
 
@@ -77,6 +81,7 @@ export default function MahjongTable({
         onDiscard={onDiscard}
         onDraw={onDraw}
       />
+      </div>
     </div>
   );
 }
