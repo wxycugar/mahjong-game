@@ -123,6 +123,22 @@ export default function useMahjongGame() {
         break;
       }
     }
+
+    // --- 重点修补 2.0：加杠 (Added Kan) 拦截检测 ---
+    // 逻辑：扫描玩家已有的副露（Pon melds），看是否有任意一组碰子，与刚摸到的牌花色数值完全一致。
+    const hasAddedKanMatch = playerMelds.some(meld =>
+        // 1. 面子必须由3张牌组成 (碰子)
+        meld.length === 3 &&
+        // 2. 面子里的每一张牌必须是相同的花色和数值 (AAA)
+        meld.every(t => t.suit === newlyDrawnTile.suit && t.value === newlyDrawnTile.value)
+    );
+
+    if (hasAddedKanMatch === true) {
+        setCanKanTile(newlyDrawnTile); // 触发紫色杠按钮
+        setStatusLog('抓牌成功，您的手牌满足"加杠"条件！杠！');
+        return; // 中断流程，等待玩家点击杠按钮
+    }
+
     setStatusLog('摸牌成功，请弃牌');
   };
 
