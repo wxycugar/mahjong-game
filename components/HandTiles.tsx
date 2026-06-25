@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Tile, GamePhase } from '@/lib/mahjongTypes';
+import MahjongTile from './MahjongTile';
 
 interface HandTilesProps {
   playerHand: Tile[];
@@ -38,17 +39,12 @@ export default function HandTiles({
               className="flex gap-px md:gap-1.5 bg-black/60 p-0.5 md:p-4 rounded-lg md:rounded-[2rem] border border-white/10 shadow-2xl transform rotate-1"
             >
               {meld.map((tile, ti) => (
-                <div
-                  key={`meld-t-${ti}`}
-                  className="w-[clamp(16px,4vw,22px)] md:w-[clamp(28px,2.5vw,48px)] h-auto bg-white rounded md:rounded-md overflow-hidden border-b-[2px] md:border-b-[4px] border-gray-400 shrink-0"
-                >
-                  <img
-                    src={`/tiles/${tile.suit}${tile.value}.svg`}
-                    className="w-full h-full p-0.5 md:p-2"
-                    alt="meld"
+                  <MahjongTile
+                    key={`meld-t-${ti}`}
+                    tile={tile}
+                    className="w-[clamp(16px,4vw,22px)] md:w-[clamp(28px,2.5vw,48px)] h-auto rounded md:rounded-md border-b-[2px] md:border-b-[4px] border-gray-400 shrink-0 p-0.5 md:p-2"
                   />
-                </div>
-              ))}
+                ))}
             </div>
           ))}
         </div>
@@ -79,29 +75,17 @@ export default function HandTiles({
                         .join(' ')}
                     </div>
                   )}
-                  <button
+                  <MahjongTile
+                    tile={tile}
+                    isWait={!!waitList}
                     onClick={() => onDiscard(tile, i)}
                     disabled={!isActionable}
-                    className={`absolute bottom-0 left-0 w-full bg-white border-b-[4px] md:border-b-[7px] border-gray-400 rounded-lg md:rounded-xl shadow-2xl transition-all duration-300 ${
+                    className={`absolute bottom-0 left-0 w-full border-b-[4px] md:border-b-[7px] border-gray-400 rounded-lg md:rounded-xl shadow-2xl ${
                       isActionable
                         ? 'active:scale-95 md:group-hover:-translate-y-16 md:cursor-pointer'
                         : 'opacity-80 grayscale-[0.4]'
                     }`}
-                  >
-                    <img
-                      src={`/tiles/${tile.suit}${tile.value}.svg`}
-                      className={`w-full h-auto p-1 md:p-2 ${
-                        waitList
-                          ? 'ring-2 md:ring-6 ring-blue-500 rounded md:rounded-lg shadow-blue-500/80 shadow-md md:shadow-3xl'
-                          : ''
-                      }`}
-                      alt="hand"
-                    />
-                    <span className="absolute inset-0 flex items-center justify-center text-[8px] md:text-[12px] text-gray-300 pointer-events-none uppercase opacity-15 font-black tracking-widest italic">
-                      {tile.suit}
-                      {tile.value}
-                    </span>
-                  </button>
+                  />
                 </div>
               );
             })}
@@ -118,18 +102,14 @@ export default function HandTiles({
                       TENPAI!
                     </div>
                   )}
-                  <button
+                  <MahjongTile
+                    tile={drawnTile}
+                    isDrawn
+                    isWait={!!hints[drawnTile.id]}
                     onClick={() => onDiscard(drawnTile)}
                     disabled={isAiProcessing}
-                    className="absolute bottom-0 left-0 w-full bg-white border-b-[4px] md:border-b-[7px] border-yellow-500 rounded-lg md:rounded-xl shadow-[0_0_40px_rgba(234,179,8,0.8)] md:shadow-[0_0_100px_rgba(234,179,8,0.8)] transition-all relative z-10"
-                  >
-                    <img
-                      src={`/tiles/${drawnTile.suit}${drawnTile.value}.svg`}
-                      className="w-full h-auto p-1.5 md:p-2.5"
-                      alt="drawn"
-                    />
-                    <div className="absolute -top-2 -right-2 md:-top-4 md:-right-4 bg-yellow-400 w-4 h-4 md:w-9 md:h-9 rounded-full border-2 md:border-3 border-white animate-ping" />
-                  </button>
+                    className="absolute bottom-0 left-0 w-full border-b-[4px] md:border-b-[7px] border-yellow-500 rounded-lg md:rounded-xl shadow-[0_0_40px_rgba(234,179,8,0.8)] md:shadow-[0_0_100px_rgba(234,179,8,0.8)] transition-all z-10"
+                  />
                 </div>
               ) : (
                 gameState === 'playing' && !canDiscard && (
