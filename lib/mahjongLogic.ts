@@ -169,31 +169,66 @@ export function recursiveMentsuDecompose(counts: Record<string, number>): boolea
 }
 
 /**
- * AI 智力升级：进阶评分权衡系统 (AI Strategic Brain V2)
- * 相比上一版，增加了"断幺九"倾向权重。
+ * AI 智力升级 V3：联络力评估 + 孤张惩罚机制
+ *
+ * 分数越高 → 越优先丢弃。
+ *
+ * 维度一：联络力扫描（搭子与对子保护）
+ *   遍历手牌中同花色的牌，计算数值差 diff：
+ *     diff===0  → 对子，价值极高，-500（绝不拆）
+ *     diff===1  → 两面/边张搭子，-280（强保留）
+ *     diff===2  → 嵌张搭子，-140（普通保留）
+ *
+ * 维度二：孤张惩罚
+ *   若没有任何联络，按牌型施加惩罚促使丢弃：
+ *     孤张字牌 +200 | 孤张幺九 +120 | 孤张中张 +70
  */
 export function calculateDiscardRiskScore(tile: Tile, index: number, hand: Tile[]): number {
-  let riskScore = 0;
+  let score = 0;
+  let hasConnection = false;
 
-  // 1. 【核心逻辑】断幺九倾向：极度厌恶字牌和 1, 9
+  // ---- 基底分值 ----
   if (tile.suit === 'z') {
-    riskScore += 450; // 字牌弃置权重最高
+    score += 350;  // 字牌
   } else if (tile.value === 1 || tile.value === 9) {
-    riskScore += 200; // 1, 9 弃置权重次高
+    score += 200;  // 幺九
   } else {
-    // 2-8 之间的牌分值减低（AI 倾向于保留中张）
-    riskScore += 50;
+    score += 80;   // 中张 2-8
   }
 
-  // 2. 联络力交叉扫描
+  // ---- 联络力扫描 ----
   for (let m = 0; m < hand.length; m++) {
     if (index === m) continue;
     const other = hand[m];
-    if (tile.suit === other.suit) {
-      if (tile.value === other.value) riskScore -= 300; // 对子价值巨大，AI 极力保留
-      else if (Math.abs(tile.value - other.value) <= 2) riskScore -= 120; // 顺子搭子价值大
+    if (tile.suit !== other.suit) continue;
+
+    const diff = Math.abs(tile.value - other.value);
+
+    if (diff === 0) {
+      // 对子 — 价值极高，几乎不拆
+      score -= 500;
+      hasConnection = true;
+    } else if (diff === 1 && tile.suit !== 'z') {
+      // 两面或边张搭子 — 进张率高，强保留
+      score -= 280;
+      hasConnection = true;
+    } else if (diff === 2 && tile.suit !== 'z') {
+      // 嵌张搭子 — 有一定进张率
+      score -= 140;
+      hasConnection = true;
     }
   }
 
-  return riskScore;
+  // ---- 孤张惩罚：完全没有联络的牌优先弃 ----
+  if (!hasConnection) {
+    if (tile.suit === 'z') {
+      score += 200;   // 孤立字牌 — 废牌
+    } else if (tile.value === 1 || tile.value === 9) {
+      score += 120;   // 孤立幺九 — 边张，联络困难
+    } else {
+      score += 70;    // 孤立中张 — 也有概率等靠张，但最轻
+    }
+  }
+
+  return score;
 }
