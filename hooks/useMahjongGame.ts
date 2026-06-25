@@ -157,6 +157,16 @@ export default function useMahjongGame() {
 
     setPlayerHand(handleSortTiles(nextHand));
     setDrawnTile(null); setHints({}); setCanPonTile(null); setCanRonTile(null); setCanKanTile(null);
+
+    // --- AI 荣和拦截：检查三家 AI 是否能荣和玩家的弃牌 ---
+    for (let aiIdx = 0; aiIdx < 3; aiIdx++) {
+      if (checkWinningAgari([...aiHands[aiIdx], tile], aiMelds[aiIdx].length)) {
+        setStatusLog(`对手 AI ${aiIdx + 1} 荣和！`);
+        setGameState('ai_won');
+        return;
+      }
+    }
+
     initiateAiLoopCycle(nextHand);
   };
 
@@ -188,14 +198,28 @@ export default function useMahjongGame() {
         return;
       }
 
-      // 3. AI 调用大脑评分计算最优弃牌
-      let maxScoreValue = -1000, bestIdx = 0;
+      // 3. AI 调用 Ukeire 听牌预测进行最优弃牌
+      let bestIdx = 0; let maxScore = -10000;
       for (let x = 0; x < currentAiFullHand.length; x++) {
-        const weightScore = calculateDiscardRiskScore(currentAiFullHand[x], x, currentAiFullHand);
-        if (weightScore > maxScoreValue) {
-          maxScoreValue = weightScore;
-          bestIdx = x;
+        // 模拟打掉第 x 张后剩下的 13 张
+        const simulated13 = currentAiFullHand.filter((_, idx) => idx !== x);
+        let ukeireCount = 0;
+        // 遍历全量牌型，统计有效进张数
+        for (const candidate of MASTER_METADATA_CENTER) {
+          const testTile = { ...candidate, id: 'sim-id' };
+          if (checkWinningAgari([...simulated13, testTile], aiMeldsSnapshots[i].length)) {
+            ukeireCount++;
+          }
         }
+        let finalScore: number;
+        if (ukeireCount > 0) {
+          // 打掉这张牌即可听牌，ukerie 越广优先级越高
+          finalScore = 10000 + ukeireCount;
+        } else {
+          // 无法听牌，回退到旧启发式评分
+          finalScore = calculateDiscardRiskScore(currentAiFullHand[x], x, currentAiFullHand);
+        }
+        if (finalScore > maxScore) { maxScore = finalScore; bestIdx = x; }
       }
 
       const discardedByAiTile = currentAiFullHand[bestIdx];
@@ -206,6 +230,17 @@ export default function useMahjongGame() {
       setAiHands([...aiHandsSnapshots]);
       setDiscards(prev => [...prev, discardedByAiTile]);
       setDeck([...wallSnapshot]);
+
+      // --- 拦截 0：其他 AI 荣和判定 (依序检查) ---
+      for (let otherAiIdx = 0; otherAiIdx < 3; otherAiIdx++) {
+        if (otherAiIdx === i) continue;
+        if (checkWinningAgari([...aiHandsSnapshots[otherAiIdx], discardedByAiTile], aiMeldsSnapshots[otherAiIdx].length)) {
+          setGameState('ai_won');
+          setIsAiProcessing(false);
+          setStatusLog(`对手 AI ${otherAiIdx + 1} 荣和！`);
+          return;
+        }
+      }
 
       // --- 拦截 1：玩家荣和胡牌判定 (RON) ---
       const isPlayerRonPossible = checkWinningAgari([...updatedPlayerHand, discardedByAiTile], playerMelds.length);
