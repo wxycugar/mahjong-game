@@ -12,6 +12,7 @@ interface MahjongTableProps {
   discards: Tile[];
   canRon: boolean;
   canPon: boolean;
+  canKan: boolean;
   canTsumo: boolean;
   playerHand: Tile[];
   playerMelds: Tile[][];
@@ -22,6 +23,7 @@ interface MahjongTableProps {
   gameState: GamePhase;
   onRon: () => void;
   onPon: () => void;
+  onKan: () => void;
   onTsumo: () => void;
   onDiscard: (tile: Tile, index?: number) => void;
   onDraw: () => void;
@@ -32,6 +34,7 @@ export default function MahjongTable({
   discards,
   canRon,
   canPon,
+  canKan,
   canTsumo,
   playerHand,
   playerMelds,
@@ -42,6 +45,7 @@ export default function MahjongTable({
   gameState,
   onRon,
   onPon,
+  onKan,
   onTsumo,
   onDiscard,
   onDraw,
@@ -54,9 +58,11 @@ export default function MahjongTable({
       <ActionBar
         canRon={canRon}
         canPon={canPon}
+        canKan={canKan}
         canTsumo={canTsumo}
         onRon={onRon}
         onPon={onPon}
+        onKan={onKan}
         onTsumo={onTsumo}
       />
 

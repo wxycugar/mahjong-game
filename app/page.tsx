@@ -23,6 +23,7 @@ export default function MahjongGame() {
         discards={game.discards}
         canRon={game.derivedCanRon}
         canPon={game.derivedCanPon}
+        canKan={game.derivedCanKan}
         canTsumo={game.derivedCanTsumo}
         playerHand={game.playerHand}
         playerMelds={game.playerMelds}
@@ -33,6 +34,7 @@ export default function MahjongGame() {
         gameState={game.gameState}
         onRon={game.handleRonAction}
         onPon={game.handlePonClick}
+        onKan={game.handleKanAction}
         onTsumo={game.handleTsumoAction}
         onDiscard={game.handleUserDiscard}
         onDraw={game.handleUserDraw}

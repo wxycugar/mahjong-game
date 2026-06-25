@@ -6,13 +6,15 @@ import { Tile } from '@/lib/mahjongTypes';
 interface ActionBarProps {
   canRon: boolean;
   canPon: boolean;
+  canKan: boolean;
   canTsumo: boolean;
   onRon: () => void;
   onPon: () => void;
+  onKan: () => void;
   onTsumo: () => void;
 }
 
-export default function ActionBar({ canRon, canPon, canTsumo, onRon, onPon, onTsumo }: ActionBarProps) {
+export default function ActionBar({ canRon, canPon, canKan, canTsumo, onRon, onPon, onKan, onTsumo }: ActionBarProps) {
   return (
     <div className="min-h-16 md:h-24 flex flex-wrap justify-center items-center gap-2 md:gap-10 mb-2 md:mb-4 z-[300] relative px-2 md:px-0">
       {canRon && (
@@ -29,6 +31,14 @@ export default function ActionBar({ canRon, canPon, canTsumo, onRon, onPon, onTs
           className="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white px-4 md:px-28 py-4 md:py-5 rounded-2xl md:rounded-full font-black animate-pulse shadow-[0_0_30px_rgba(37,99,235,1)] md:shadow-[0_0_80px_rgba(37,99,235,1)] border-2 md:border-2 border-white/40 text-lg md:text-3xl uppercase"
         >
           碰 (PON!)
+        </button>
+      )}
+      {canKan && (
+        <button
+          onClick={onKan}
+          className="w-full md:w-auto bg-purple-600 hover:bg-purple-500 text-white px-4 md:px-28 py-4 md:py-5 rounded-2xl md:rounded-full font-black animate-pulse shadow-[0_0_30px_rgba(147,51,234,1)] md:shadow-[0_0_80px_rgba(147,51,234,1)] border-2 md:border-2 border-white/40 text-lg md:text-3xl uppercase"
+        >
+          杠 (KAN!)
         </button>
       )}
       {canTsumo && (

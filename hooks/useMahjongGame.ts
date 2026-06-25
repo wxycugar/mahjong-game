@@ -28,6 +28,7 @@ export default function useMahjongGame() {
   const [gameState, setGameState] = useState<GamePhase>('idle');
   const [canPonTile, setCanPonTile] = useState<Tile | null>(null);
   const [canRonTile, setCanRonTile] = useState<Tile | null>(null);
+  const [canKanTile, setCanKanTile] = useState<Tile | null>(null);
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [statusLog, setStatusLog] = useState('RIICHI NEOS PRO V2.0');
   const [finalStats, setFinalStats] = useState<MatchScoringSummary>({ han: 0, doraCount: 0, winType: '' });
@@ -96,7 +97,7 @@ export default function useMahjongGame() {
     setAiMelds([[], [], []]);
     setDeck(masterDeckArray.slice(53));
     setDiscards([]); setDrawnTile(null); setPlayerMelds([]); setHints({});
-    setGameState('playing'); setCanPonTile(null); setCanRonTile(null); setIsAiProcessing(false);
+    setGameState('playing'); setCanPonTile(null); setCanRonTile(null); setCanKanTile(null); setIsAiProcessing(false);
     setStatusLog('对局已就绪，请点击摸牌开始');
   };
 
@@ -112,6 +113,16 @@ export default function useMahjongGame() {
     setDrawnTile(newlyDrawnTile);
     setDeck(restDeck);
     performTenpaiScan(playerHand, newlyDrawnTile);
+    // 暗杠检测：摸牌后检查手牌中是否有某一种牌达到4张
+    const fullHandCheck = [...playerHand, newlyDrawnTile];
+    for (const checkTile of fullHandCheck) {
+      const count = fullHandCheck.filter(t => t.suit === checkTile.suit && t.value === checkTile.value).length;
+      if (count === 4) {
+        setCanKanTile(checkTile);
+        setStatusLog('检测到可"暗杠 (KAN!)"');
+        break;
+      }
+    }
     setStatusLog('摸牌成功，请弃牌');
   };
 
@@ -129,7 +140,7 @@ export default function useMahjongGame() {
     }
 
     setPlayerHand(handleSortTiles(nextHand));
-    setDrawnTile(null); setHints({}); setCanPonTile(null); setCanRonTile(null);
+    setDrawnTile(null); setHints({}); setCanPonTile(null); setCanRonTile(null); setCanKanTile(null);
     initiateAiLoopCycle(nextHand);
   };
 
@@ -187,6 +198,15 @@ export default function useMahjongGame() {
         setIsAiProcessing(false);
         setStatusLog('检测到可"荣和 (胡!)"');
         return; // 中断流程
+      }
+
+      // --- 拦截 1b：玩家大明杠判定 (KAN) ---
+      const playerKanCount = updatedPlayerHand.filter(t => t.suit === discardedByAiTile.suit && t.value === discardedByAiTile.value).length;
+      if (playerKanCount === 3) {
+        setCanKanTile(discardedByAiTile);
+        setIsAiProcessing(false);
+        setStatusLog('检测到可"大明杠 (KAN!)"');
+        return;
       }
 
       // --- 拦截 2：玩家鸣牌拦截 (PON) ---
@@ -252,8 +272,16 @@ export default function useMahjongGame() {
     setPlayerMelds(prev => [...prev, [...matchedTiles, target]]);
     setPlayerHand(handleSortTiles(remainingHandArray));
     setDrawnTile(null); setCanPonTile(null); setIsAiProcessing(false);
+    setCanKanTile(null);
     performTenpaiScan(remainingHandArray, null);
     setStatusLog('碰牌成功！请从手中弃掉一张不需要的牌');
+  };
+
+  /**
+   * 动作：占位杠牌动作 (后续实现摸岭上牌逻辑)
+   */
+  const handleKanAction = () => {
+    setCanKanTile(null); /* TODO: 后续实现具体杠牌逻辑 */
   };
 
   /**
@@ -272,6 +300,7 @@ export default function useMahjongGame() {
   // 计算派生布尔值
   const derivedCanRon = !!canRonTile;
   const derivedCanPon = !!canPonTile;
+  const derivedCanKan = !!canKanTile;
   const derivedCanTsumo = (drawnTile || canPlayerCurrentlyDiscard) &&
     checkWinningAgari(drawnTile ? [...playerHand, drawnTile] : playerHand, playerMelds.length);
   const deckSize = Math.max(0, deck.length - 14);
@@ -291,6 +320,7 @@ export default function useMahjongGame() {
     gameState,
     canPonTile,
     canRonTile,
+    canKanTile,
     isAiProcessing,
     statusLog,
     finalStats,
@@ -298,6 +328,7 @@ export default function useMahjongGame() {
     canPlayerCurrentlyDiscard,
     derivedCanRon,
     derivedCanPon,
+    derivedCanKan,
     derivedCanTsumo,
     deckSize,
     handSize,
@@ -309,6 +340,7 @@ export default function useMahjongGame() {
     handleUserDiscard,
     handleRonAction,
     handlePonClick,
+    handleKanAction,
     handleTsumoAction,
   };
 }
