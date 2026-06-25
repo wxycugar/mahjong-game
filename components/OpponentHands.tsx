@@ -19,8 +19,9 @@ export default function OpponentHands({ aiHands }: OpponentHandsProps) {
           {aiHands[1].map((_, idx) => (
             <div
               key={`at-${idx}`}
-              className="w-4 h-6 md:w-8 md:h-12 bg-gradient-to-b from-emerald-800 to-emerald-950 border border-emerald-800/30 rounded shadow-inner relative overflow-hidden
-                before:absolute before:inset-0 before:bg-gradient-to-b before:from-emerald-700/40 before:to-transparent before:pointer-events-none"
+              className="w-4 h-6 md:w-8 md:h-12 rounded shadow-[0_2px_0_rgba(0,0,0,0.4),0_3px_6px_rgba(0,0,0,0.3)] relative overflow-hidden
+                before:absolute before:inset-0 before:bg-gradient-to-b before:from-emerald-200 before:to-emerald-800 before:pointer-events-none
+                after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/[0.15] after:to-transparent after:pointer-events-none"
             />
           ))}
         </div>
@@ -32,8 +33,9 @@ export default function OpponentHands({ aiHands }: OpponentHandsProps) {
           {aiHands[0].map((_, idx) => (
             <div
               key={`al-${idx}`}
-              className="w-4 h-6 md:w-7 md:h-10 bg-gradient-to-b from-emerald-800 to-emerald-950 border border-emerald-800/30 rounded shadow-inner relative overflow-hidden
-                before:absolute before:inset-0 before:bg-gradient-to-b before:from-emerald-700/40 before:to-transparent before:pointer-events-none"
+              className="w-4 h-6 md:w-7 md:h-10 rounded shadow-[0_2px_0_rgba(0,0,0,0.4),0_3px_6px_rgba(0,0,0,0.3)] relative overflow-hidden
+                before:absolute before:inset-0 before:bg-gradient-to-b before:from-emerald-200 before:to-emerald-800 before:pointer-events-none
+                after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/[0.15] after:to-transparent after:pointer-events-none"
             />
           ))}
         </div>
@@ -45,8 +47,9 @@ export default function OpponentHands({ aiHands }: OpponentHandsProps) {
           {aiHands[2].map((_, idx) => (
             <div
               key={`ar-${idx}`}
-              className="w-4 h-6 md:w-7 md:h-10 bg-gradient-to-b from-emerald-800 to-emerald-950 border border-emerald-800/30 rounded shadow-inner relative overflow-hidden
-                before:absolute before:inset-0 before:bg-gradient-to-b before:from-emerald-700/40 before:to-transparent before:pointer-events-none"
+              className="w-4 h-6 md:w-7 md:h-10 rounded shadow-[0_2px_0_rgba(0,0,0,0.4),0_3px_6px_rgba(0,0,0,0.3)] relative overflow-hidden
+                before:absolute before:inset-0 before:bg-gradient-to-b before:from-emerald-200 before:to-emerald-800 before:pointer-events-none
+                after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/[0.15] after:to-transparent after:pointer-events-none"
             />
           ))}
         </div>

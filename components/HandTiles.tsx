@@ -81,7 +81,7 @@ export default function HandTiles({
                     isWait={!!waitList}
                     onClick={() => onDiscard(tile, i)}
                     disabled={!isActionable}
-                    className={`absolute bottom-0 left-0 w-full border-b-[4px] md:border-b-[7px] border-gray-400 rounded-lg md:rounded-xl shadow-2xl ${
+                    className={`absolute bottom-0 left-0 w-full border-b-[4px] md:border-b-[7px] border-gray-400 rounded-lg md:rounded-xl ${
                       isActionable
                         ? 'active:scale-95 md:group-hover:-translate-y-16 md:cursor-pointer'
                         : 'opacity-80 grayscale-[0.4]'
@@ -103,14 +103,16 @@ export default function HandTiles({
                       TENPAI!
                     </div>
                   )}
-                  <MahjongTile
-                    tile={drawnTile}
-                    isDrawn
-                    isWait={!!hints[drawnTile.id]}
-                    onClick={() => onDiscard(drawnTile)}
-                    disabled={isAiProcessing}
-                    className="absolute bottom-0 left-0 w-full border-b-[4px] md:border-b-[7px] border-yellow-500 rounded-lg md:rounded-xl shadow-[0_0_40px_rgba(234,179,8,0.8)] md:shadow-[0_0_100px_rgba(234,179,8,0.8)] transition-all z-10"
-                  />
+                  <div className="w-full h-full shadow-[0_0_40px_rgba(234,179,8,0.8)] md:shadow-[0_0_100px_rgba(234,179,8,0.8)]">
+                    <MahjongTile
+                      tile={drawnTile}
+                      isDrawn
+                      isWait={!!hints[drawnTile.id]}
+                      onClick={() => onDiscard(drawnTile)}
+                      disabled={isAiProcessing}
+                      className="absolute bottom-0 left-0 w-full border-b-[4px] md:border-b-[7px] border-yellow-500 rounded-lg md:rounded-xl transition-all z-10"
+                    />
+                  </div>
                 </div>
               ) : (
                 gameState === 'playing' && !canDiscard && (

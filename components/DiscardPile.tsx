@@ -17,7 +17,7 @@ export default function DiscardPile({ discards }: DiscardPileProps) {
           <MahjongTile
             key={tile.id}
             tile={tile}
-            className="w-6 h-8 md:w-11 md:h-14 border-b-[2px] md:border-b-[5px] border-gray-400 rounded md:rounded shadow-md md:shadow-2xl transform hover:scale-110 hover:-translate-y-2 transition-all cursor-help p-0.5 md:p-1.5"
+            className="w-6 h-8 md:w-11 md:h-14 border-b-[2px] md:border-b-[5px] border-gray-400 rounded md:rounded transform hover:scale-110 hover:-translate-y-2 transition-all cursor-help p-0.5 md:p-1.5"
           />
         ))}
       </div>
