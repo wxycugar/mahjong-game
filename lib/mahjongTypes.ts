@@ -48,6 +48,16 @@ export interface MatchScoringSummary {
   yakuList: string[];
 }
 
+// AI 获胜时的冻结数据
+export interface AiWinnerInfo {
+  index: number;                              // 赢家索引 0-2
+  hand: Tile[];                               // 最终 14 张手牌（含胡牌）
+  melds: Tile[][];                           // 副露
+  winType: 'TSUMO' | 'RON';
+  yakuResult: { totalHan: number; yakuList: string[] };
+  doraCount: number;
+}
+
 // 静态数据：定义 34 种标准牌型的元数据模型
 export const MASTER_METADATA_CENTER: { suit: 'm' | 'p' | 's' | 'z'; value: number }[] = [];
 

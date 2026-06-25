@@ -24,6 +24,7 @@ export default function MahjongGame() {
         canRon={game.derivedCanRon}
         canPon={game.derivedCanPon}
         canKan={game.derivedCanKan}
+      
         canTsumo={game.derivedCanTsumo}
         playerHand={game.playerHand}
         playerMelds={game.playerMelds}
@@ -43,6 +44,7 @@ export default function MahjongGame() {
       <GameOverOverlay
         gameState={game.gameState}
         finalStats={game.finalStats}
+        aiWinnerInfo={game.aiWinnerInfo}
         onNewGame={game.handleGameInit}
       />
       </main>

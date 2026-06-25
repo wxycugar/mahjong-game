@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Tile, GamePhase, MatchScoringSummary, MASTER_METADATA_CENTER } from '@/lib/mahjongTypes';
+import { Tile, GamePhase, MatchScoringSummary, AiWinnerInfo, MASTER_METADATA_CENTER } from '@/lib/mahjongTypes';
 import { evaluateDoraStatus, checkWinningAgari, calculateDiscardRiskScore, calculateDetailedYaku } from '@/lib/mahjongLogic';
 
 /**
@@ -32,6 +32,7 @@ export default function useMahjongGame() {
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [statusLog, setStatusLog] = useState('RIICHI NEOS PRO V2.0');
   const [finalStats, setFinalStats] = useState<MatchScoringSummary>({ han: 0, doraCount: 0, winType: '', yakuList: [] });
+  const [aiWinnerInfo, setAiWinnerInfo] = useState<AiWinnerInfo | null>(null);
 
   // 工具：整理手牌算法
   const handleSortTiles = useCallback((tiles: Tile[]) => {
@@ -98,6 +99,7 @@ export default function useMahjongGame() {
     setDeck(masterDeckArray.slice(53));
     setDiscards([]); setDrawnTile(null); setPlayerMelds([]); setHints({});
     setGameState('playing'); setCanPonTile(null); setCanRonTile(null); setCanKanTile(null); setIsAiProcessing(false);
+    setAiWinnerInfo(null);
     setStatusLog('对局已就绪，请点击摸牌开始');
   };
 
@@ -161,6 +163,10 @@ export default function useMahjongGame() {
     // --- AI 荣和拦截：检查三家 AI 是否能荣和玩家的弃牌 ---
     for (let aiIdx = 0; aiIdx < 3; aiIdx++) {
       if (checkWinningAgari([...aiHands[aiIdx], tile], aiMelds[aiIdx].length)) {
+        const finalHand = handleSortTiles([...aiHands[aiIdx], tile]);
+        const doraCount = finalHand.filter(t => evaluateDoraStatus(t, doraIndicator)).length;
+        const yakuResult = calculateDetailedYaku(finalHand, aiMelds[aiIdx], false);
+        setAiWinnerInfo({ index: aiIdx, hand: finalHand, melds: aiMelds[aiIdx], winType: 'RON', yakuResult, doraCount });
         setStatusLog(`对手 AI ${aiIdx + 1} 荣和！`);
         setGameState('ai_won');
         return;
@@ -191,8 +197,12 @@ export default function useMahjongGame() {
 
       // 2. AI 胡牌检测 (自摸)
       if (checkWinningAgari(currentAiFullHand, aiMeldsSnapshots[i].length)) {
-        aiHandsSnapshots[i] = handleSortTiles(currentAiFullHand);
+        const sorted = handleSortTiles(currentAiFullHand);
+        aiHandsSnapshots[i] = sorted;
         setAiHands(aiHandsSnapshots);
+        const doraCount = sorted.filter(t => evaluateDoraStatus(t, doraIndicator)).length;
+        const yakuResult = calculateDetailedYaku(sorted, aiMeldsSnapshots[i], true);
+        setAiWinnerInfo({ index: i, hand: sorted, melds: aiMeldsSnapshots[i], winType: 'TSUMO', yakuResult, doraCount });
         setGameState('ai_won');
         setIsAiProcessing(false);
         return;
@@ -235,6 +245,10 @@ export default function useMahjongGame() {
       for (let otherAiIdx = 0; otherAiIdx < 3; otherAiIdx++) {
         if (otherAiIdx === i) continue;
         if (checkWinningAgari([...aiHandsSnapshots[otherAiIdx], discardedByAiTile], aiMeldsSnapshots[otherAiIdx].length)) {
+          const finalHand = handleSortTiles([...aiHandsSnapshots[otherAiIdx], discardedByAiTile]);
+          const doraCount = finalHand.filter(t => evaluateDoraStatus(t, doraIndicator)).length;
+          const yakuResult = calculateDetailedYaku(finalHand, aiMeldsSnapshots[otherAiIdx], false);
+          setAiWinnerInfo({ index: otherAiIdx, hand: finalHand, melds: aiMeldsSnapshots[otherAiIdx], winType: 'RON', yakuResult, doraCount });
           setGameState('ai_won');
           setIsAiProcessing(false);
           setStatusLog(`对手 AI ${otherAiIdx + 1} 荣和！`);
@@ -439,6 +453,7 @@ export default function useMahjongGame() {
     isAiProcessing,
     statusLog,
     finalStats,
+    aiWinnerInfo,
     // -- 派生 --
     canPlayerCurrentlyDiscard,
     derivedCanRon,
