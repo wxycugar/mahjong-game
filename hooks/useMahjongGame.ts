@@ -294,10 +294,70 @@ export default function useMahjongGame() {
   };
 
   /**
-   * 动作：占位杠牌动作 (后续实现摸岭上牌逻辑)
+   * 动作：杠牌执行逻辑（含加杠/暗杠/大明杠 + 岭上摸牌）
    */
   const handleKanAction = () => {
-    setCanKanTile(null); /* TODO: 后续实现具体杠牌逻辑 */
+    if (!canKanTile) return;
+    const target = canKanTile;
+    let nextHand = [...playerHand];
+    let nextMelds = [...playerMelds];
+    let newDrawnTile: Tile | null = drawnTile;
+    let isDrawnTileUsed = false;
+
+    // 1. 检测加杠 (Added Kan)：检查副露中是否已有 3 张同牌碰子
+    const existingMeldIndex = nextMelds.findIndex(
+      meld => meld.length === 3 && meld[0].suit === target.suit && meld[0].value === target.value
+    );
+
+    if (existingMeldIndex !== -1) {
+      // 加杠：将第 4 张推入现有的碰面子
+      const updatedMeld = [...nextMelds[existingMeldIndex], target];
+      nextMelds[existingMeldIndex] = updatedMeld;
+      if (drawnTile && drawnTile.id === target.id) {
+        isDrawnTileUsed = true;
+      } else {
+        nextHand = nextHand.filter(t => !(t.id === target.id));
+      }
+    } else {
+      // 2. 暗杠或大明杠：从手牌中找出所有同花色同数值的牌
+      const handMatches = nextHand.filter(t => t.suit === target.suit && t.value === target.value);
+
+      if (handMatches.length === 3 && drawnTile && drawnTile.id === target.id) {
+        // 摸到的暗杠：手牌 3 张 + 摸到的 1 张
+        nextMelds = [...nextMelds, [...handMatches, target]];
+        nextHand = nextHand.filter(t => !handMatches.find(m => m.id === t.id));
+        isDrawnTileUsed = true;
+      } else if (handMatches.length === 4) {
+        // 起手自带的暗杠：手牌中已有 4 张
+        nextMelds = [...nextMelds, handMatches];
+        nextHand = nextHand.filter(t => !handMatches.find(m => m.id === t.id));
+      } else if (handMatches.length === 3) {
+        // 大明杠：拦截 AI 弃牌，手牌 3 张 + 弃牌
+        nextMelds = [...nextMelds, [...handMatches, target]];
+        nextHand = nextHand.filter(t => !handMatches.find(m => m.id === t.id));
+      }
+    }
+
+    // 3. 岭上摸牌 (Rinshan Draw)：从牌墙末尾抽取一张
+    const newDeck = [...deck];
+    const rinshanTile = newDeck.pop();
+
+    // 如果消耗了 drawnTile，则替换为岭上牌，否则保留原有 drawnTile
+    if (isDrawnTileUsed) {
+      newDrawnTile = rinshanTile || null;
+    } else {
+      newDrawnTile = drawnTile;
+    }
+
+    // 4. 状态同步
+    setDeck(newDeck);
+    setPlayerHand(handleSortTiles(nextHand));
+    setPlayerMelds(nextMelds);
+    setDrawnTile(newDrawnTile);
+    setCanKanTile(null);
+    setIsAiProcessing(false);
+    performTenpaiScan(nextHand, newDrawnTile);
+    setStatusLog('杠牌成功！触发岭上摸牌，请选择弃牌或直接自摸。');
   };
 
   /**
