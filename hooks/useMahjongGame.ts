@@ -201,12 +201,11 @@ export default function useMahjongGame() {
       const discardedByAiTile = currentAiFullHand[bestIdx];
       currentAiFullHand.splice(bestIdx, 1);
 
-      // 同步数据（AI 手牌和牌墙，弃牌暂不加入，因为可能被拦截）
+      // 同步数据（AI 手牌、牌墙、弃牌）
       aiHandsSnapshots[i] = handleSortTiles(currentAiFullHand);
       setAiHands([...aiHandsSnapshots]);
+      setDiscards(prev => [...prev, discardedByAiTile]);
       setDeck([...wallSnapshot]);
-
-      let aiConsumedTile = false; // AI 碰牌消耗标记
 
       // --- 拦截 1：玩家荣和胡牌判定 (RON) ---
       const isPlayerRonPossible = checkWinningAgari([...updatedPlayerHand, discardedByAiTile], playerMelds.length);
@@ -253,18 +252,12 @@ export default function useMahjongGame() {
             setAiMelds([...aiMeldsSnapshots]);
             setAiHands([...aiHandsSnapshots]);
 
-            aiConsumedTile = true;
             await new Promise(r => setTimeout(r, 600));
             // AI 碰完后也需要弃一张牌，流程跳转
             i = otherAiIdx - 1; // 顺次跳转
             break;
           }
         }
-      }
-
-      // 所有拦截均未触发，或 AI 碰牌消耗了该牌
-      if (!aiConsumedTile) {
-        setDiscards(prev => [...prev, discardedByAiTile]);
       }
     }
 
@@ -343,6 +336,8 @@ export default function useMahjongGame() {
         // 大明杠：拦截 AI 弃牌，手牌 3 张 + 弃牌
         nextMelds = [...nextMelds, [...handMatches, target]];
         nextHand = nextHand.filter(t => !handMatches.find(m => m.id === t.id));
+        // 从弃牌区移除被杠的牌，防止同一张牌同时出现在弃牌区和副露区
+        setDiscards(prev => prev.filter(t => t.id !== target.id));
       }
     }
 
