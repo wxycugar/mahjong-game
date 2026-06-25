@@ -29,14 +29,14 @@ export default function HandTiles({
 }: HandTilesProps) {
   return (
     <div className="relative bottom-0 left-0 w-full shrink-0 pb-2 md:pb-6 pl-0.5 md:px-4">
-      {/* 手机端：整个手牌区悬浮在底部，与 melds 一起 */}
-      <div className="flex items-end justify-start md:justify-center w-full gap-2 md:gap-6">
-        {/* 左侧：副露独立区 */}
-        <div className="flex flex-wrap md:flex-nowrap gap-px md:gap-4 pb-0 md:pb-6 min-w-[10px] md:min-w-[150px] items-end max-w-[33%] md:max-w-none shrink-0">
+      {/* 整个底部区域：纵向堆叠，副露在上、手牌在下 */}
+      <div className="w-full flex flex-col items-center justify-end z-[250] gap-2 md:gap-4">
+        {/* 副露区：靠右换行排列 */}
+        <div className="flex flex-wrap justify-end w-full max-w-4xl gap-2 md:gap-4 px-2 md:px-8">
           {playerMelds.map((meld, mi) => (
             <div
               key={`meld-gp-${mi}`}
-              className="flex gap-px md:gap-1.5 bg-black/60 p-0.5 md:p-4 rounded-lg md:rounded-[2rem] border border-white/10 shadow-2xl transform rotate-1"
+              className="flex gap-0.5 md:gap-1.5 bg-black/60 p-1.5 md:p-4 rounded-xl md:rounded-[2rem] border border-white/10 shadow-2xl transform md:rotate-1"
             >
               {meld.map((tile, ti) => (
                   <MahjongTile
@@ -127,9 +127,6 @@ export default function HandTiles({
             </div>
           </div>
         </div>
-
-        {/* 右侧平衡占位符 - 桌面端保留 */}
-        <div className="hidden md:block flex-none md:flex-1 min-w-0 md:min-w-[150px]" />
       </div>
     </div>
   );
