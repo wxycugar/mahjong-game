@@ -32,7 +32,7 @@ export default function HandTiles({
       {/* 手机端：整个手牌区悬浮在底部，与 melds 一起 */}
       <div className="flex items-end justify-start md:justify-center w-full gap-2 md:gap-6">
         {/* 左侧：副露独立区 */}
-        <div className="flex flex-wrap md:flex-nowrap gap-px md:gap-4 pb-0 md:pb-6 min-w-[10px] md:min-w-[150px] items-end shrink-0">
+        <div className="flex flex-wrap md:flex-nowrap gap-px md:gap-4 pb-0 md:pb-6 min-w-[10px] md:min-w-[150px] items-end max-w-[33%] md:max-w-none shrink-0">
           {playerMelds.map((meld, mi) => (
             <div
               key={`meld-gp-${mi}`}
