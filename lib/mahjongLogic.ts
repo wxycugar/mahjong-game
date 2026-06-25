@@ -27,6 +27,95 @@ export function evaluateDoraStatus(tile: Tile, indicator: Tile | null): boolean 
 }
 
 /**
+ * 高级计番引擎：根据最终14张牌面 + 副露阵列 + 是否自摸，动态扫描役种。
+ * 当前支持的役种：自摸 (Tsumo)、断幺九 (Tanyao)、碰碰胡 (Toi-Toi)、混一色 (Honitsu)、清一色 (Chinitsu)
+ */
+export function calculateDetailedYaku(
+  hand: Tile[],
+  melds: Tile[][],
+  isTsumo: boolean
+): { totalHan: number; yakuList: string[] } {
+  const yakuList: string[] = [];
+  let totalHan = 0;
+
+  // 1. 自摸 (Tsumo) — 1番
+  if (isTsumo) {
+    yakuList.push('自摸 (Tsumo)');
+    totalHan += 1;
+  }
+
+  // 收集手牌中所有牌的花色与数值信息
+  const allTiles = [...hand, ...melds.flat()];
+  const allKeys = allTiles.map(t => `${t.suit}${t.value}`);
+
+  // 判断是否全是中张牌（2-8，不含字牌和1/9）
+  const isAllMiddle = allTiles.every(t => t.suit !== 'z' && t.value >= 2 && t.value <= 8);
+
+  // 2. 断幺九 (Tanyao) — 1番
+  if (isAllMiddle) {
+    yakuList.push('断幺九 (Tanyao)');
+    totalHan += 1;
+  }
+
+  // 花色统计
+  const suitCount: Record<string, number> = { m: 0, p: 0, s: 0, z: 0 };
+  allTiles.forEach(t => { suitCount[t.suit] = (suitCount[t.suit] || 0) + 1; });
+
+  // 数牌花色分布：哪些花色有牌
+  const numberedSuits = ['m', 'p', 's'].filter(s => suitCount[s] > 0);
+  const hasHonors = suitCount['z'] > 0;
+
+  // 3. 混一色 (Honitsu) — 2番（门清状态下为3番，这里统一简化计2番）
+  if (numberedSuits.length === 1 && hasHonors) {
+    yakuList.push('混一色 (Honitsu)');
+    totalHan += 2;
+  }
+
+  // 4. 清一色 (Chinitsu) — 5番（门清状态下为6番，这里统一简化计5番）
+  if (numberedSuits.length === 1 && !hasHonors) {
+    // 同时满足混一色条件时，清一色覆盖混一色
+    if (yakuList[yakuList.length - 1]?.startsWith('混一色')) {
+      yakuList.pop();
+      totalHan -= 2;
+    }
+    yakuList.push('清一色 (Chinitsu)');
+    totalHan += 5;
+  }
+
+  // 5. 碰碰胡 (Toi-Toi) — 2番
+  // 条件：所有面子都是刻子（AAA），不能有顺子（ABC）
+  // 利用递归拆解函数检查是否存在顺子组成可能
+  const tileFreq: Record<string, number> = {};
+  hand.forEach(t => {
+    const key = `${t.suit}${t.value}`;
+    tileFreq[key] = (tileFreq[key] || 0) + 1;
+  });
+  // 检查是否有顺子：遍历所有键，看是否存在连续的三张
+  let hasSequence = false;
+  const sortedKeys = Object.keys(tileFreq).filter(k => tileFreq[k] > 0).sort();
+  for (const key of sortedKeys) {
+    const suit = key[0];
+    const val = parseInt(key.substring(1));
+    if (suit !== 'z' && val <= 7) {
+      const k2 = `${suit}${val + 1}`;
+      const k3 = `${suit}${val + 2}`;
+      if (tileFreq[k2] > 0 && tileFreq[k3] > 0) {
+        hasSequence = true;
+        break;
+      }
+    }
+  }
+  // 如果手牌不含顺子可能性，并且所有副露都是刻子（长度3），则为碰碰胡
+  const allMeldsArePon = melds.every(m => m.length === 3 && m.every(t => t.suit === m[0].suit && t.value === m[0].value));
+  if (!hasSequence && allMeldsArePon && melds.length > 0) {
+    yakuList.push('碰碰胡 (Toi-Toi)');
+    totalHan += 2;
+  }
+
+  return { totalHan, yakuList };
+}
+
+/**
  * 核心算法：日本麻将胡牌检测系统 (Standard Agari Engine)
  * 公式：(手牌 + 副露*3) === 14。
  */

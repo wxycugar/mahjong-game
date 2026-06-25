@@ -45,6 +45,7 @@ export interface MatchScoringSummary {
   han: number;
   doraCount: number;
   winType: 'TSUMO' | 'RON' | '';
+  yakuList: string[];
 }
 
 // 静态数据：定义 34 种标准牌型的元数据模型

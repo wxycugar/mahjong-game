@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { Tile, GamePhase, MatchScoringSummary, MASTER_METADATA_CENTER } from '@/lib/mahjongTypes';
-import { evaluateDoraStatus, checkWinningAgari, calculateDiscardRiskScore } from '@/lib/mahjongLogic';
+import { evaluateDoraStatus, checkWinningAgari, calculateDiscardRiskScore, calculateDetailedYaku } from '@/lib/mahjongLogic';
 
 /**
  * =============================================================================
@@ -31,7 +31,7 @@ export default function useMahjongGame() {
   const [canKanTile, setCanKanTile] = useState<Tile | null>(null);
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [statusLog, setStatusLog] = useState('RIICHI NEOS PRO V2.0');
-  const [finalStats, setFinalStats] = useState<MatchScoringSummary>({ han: 0, doraCount: 0, winType: '' });
+  const [finalStats, setFinalStats] = useState<MatchScoringSummary>({ han: 0, doraCount: 0, winType: '', yakuList: [] });
 
   // 工具：整理手牌算法
   const handleSortTiles = useCallback((tiles: Tile[]) => {
@@ -271,8 +271,9 @@ export default function useMahjongGame() {
   const handleRonAction = () => {
     if (!canRonTile) return;
     const finalSet = [...playerHand, canRonTile];
-    const doras = finalSet.filter(t => evaluateDoraStatus(t, doraIndicator)).length;
-    setFinalStats({ han: 1 + doras, doraCount: doras, winType: 'RON' });
+    const doraCount = finalSet.filter(t => evaluateDoraStatus(t, doraIndicator)).length;
+    const { totalHan, yakuList } = calculateDetailedYaku(finalSet, playerMelds, false);
+    setFinalStats({ han: totalHan + doraCount, doraCount, winType: 'RON', yakuList });
     setGameState('won');
   };
 
@@ -365,8 +366,9 @@ export default function useMahjongGame() {
    */
   const handleTsumoAction = () => {
     const finalSet = drawnTile ? [...playerHand, drawnTile] : playerHand;
-    const dorasFoundCount = finalSet.filter(t => evaluateDoraStatus(t, doraIndicator)).length;
-    setFinalStats({ han: 1 + dorasFoundCount, doraCount: dorasFoundCount, winType: 'TSUMO' });
+    const doraCount = finalSet.filter(t => evaluateDoraStatus(t, doraIndicator)).length;
+    const { totalHan, yakuList } = calculateDetailedYaku(finalSet, playerMelds, true);
+    setFinalStats({ han: totalHan + doraCount, doraCount, winType: 'TSUMO', yakuList });
     setGameState('won');
   };
 

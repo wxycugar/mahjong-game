@@ -27,6 +27,15 @@ export default function GameOverOverlay({ gameState, finalStats, onNewGame }: Ga
             <span className="text-emerald-400 text-lg md:text-5xl font-bold tracking-[0.1em] md:tracking-[0.3em] uppercase">
               {finalStats.winType} +{finalStats.doraCount}
             </span>
+            {finalStats.yakuList.length > 0 && (
+              <div className="mt-4 md:mt-6 flex flex-wrap justify-center gap-2 md:gap-4">
+                {finalStats.yakuList.map((yaku, idx) => (
+                  <span key={idx} className="bg-emerald-900/60 border border-emerald-500/40 px-2 md:px-5 py-1 md:py-2 rounded-lg md:rounded-xl text-emerald-300 text-xs md:text-xl font-bold tracking-wider">
+                    {yaku}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
