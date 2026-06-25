@@ -112,6 +112,12 @@ export function calculateDetailedYaku(
     totalHan += 2;
   }
 
+  // ---- 保底拦截：日麻不允许 0 番胡牌 ----
+  if (totalHan === 0) {
+    totalHan = 1;
+    yakuList.push('基本型 (Base Form)');
+  }
+
   return { totalHan, yakuList };
 }
 
